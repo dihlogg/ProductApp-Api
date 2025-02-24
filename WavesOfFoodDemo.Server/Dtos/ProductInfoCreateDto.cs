@@ -11,4 +11,5 @@ public class ProductInfoCreateDto
     public string? ImageDetail { get; set; }
 
     public string? Description { get; set; }
+    public Guid? CategoryId { get; set; }
 }
