@@ -1,6 +1,8 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using WavesOfFoodDemo.Server.Infrastructures;
+using WavesOfFoodDemo.Server.Infrastructures.Repositories;
 using WavesOfFoodDemo.Server.Services;
+using WavesOfFoodDemo.Server.Services.Implements;
 
 namespace WavesOfFoodDemo.Server.AppSettings;
 
@@ -17,5 +19,7 @@ public static class ApplicationServicesExtensions
         services.AddTransient<ICartInfoService, CartInfoService>();
         services.AddTransient<ICartDetailsRepository, CartDetailsRepository>();
         services.AddTransient<ICartDetailsService, CartDetailsService>();
+        services.AddTransient<ICategoryRepository, CategoryRepository>();
+        services.AddTransient<ICategoryService, CategoryService>();
     }
 }

@@ -35,6 +35,13 @@ namespace WavesOfFoodDemo.Server
                 .ForAllMembers(opt => opt.Condition((src, dst, srcMember) => srcMember != null));
             CreateMap<CartDetailsDto, CartDetails>().ReverseMap()
                 .ForAllMembers(opt => opt.Condition((src, dst, srcMember) => srcMember != null));
+
+            CreateMap<CategoryCreateDto, Category>().ReverseMap()
+              .ForAllMembers(opt => opt.Condition((src, dst, srcMember) => srcMember != null));
+            CreateMap<Category, CategoryDto>().ReverseMap()
+                .ForAllMembers(opt => opt.Condition((src, dst, srcMember) => srcMember != null));
+            CreateMap<CategoryDto, Category>().ReverseMap()
+                .ForAllMembers(opt => opt.Condition((src, dst, srcMember) => srcMember != null));
         }
     }
 }
