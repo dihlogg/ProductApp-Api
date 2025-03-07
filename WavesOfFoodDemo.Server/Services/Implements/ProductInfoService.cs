@@ -22,7 +22,7 @@ public class ProductInfoService : IProductInfoService
     { 
         try
         {
-            var data = await _productInfoRepository.GetAllAsync();
+            var data = await _productInfoRepository.GetProductAsync();
             return _mapper.Map<List<ProductInfoDto>>(data);
         }
         catch (Exception ex)
@@ -37,7 +37,7 @@ public class ProductInfoService : IProductInfoService
         try
         {
             var info = _mapper.Map<ProductInfo>(productInfoCreateDto);
-            return await _productInfoRepository.AddAsync(info);
+            return await _productInfoRepository.AddProductAsync(info);
         }
         catch (Exception ex)
         {
@@ -45,18 +45,42 @@ public class ProductInfoService : IProductInfoService
             throw;
         }
     }
-
+    //public async Task<bool?> EditProductInfoAsync(ProductInfoDto productInfoDto)
+    //{
+    //    try
+    //    {
+    //        var productInfo = await _productInfoRepository.GetByIdAsync(productInfoDto.Id);
+    //        if (productInfo == null)
+    //        {
+    //            return null;
+    //        }
+    //        var infoUpdate = _mapper.Map<ProductInfo>(productInfoDto);
+    //        var result = await _productInfoRepository.UpdateAsync(infoUpdate);
+    //        return result;
+    //    }
+    //    catch (Exception ex)
+    //    {
+    //        _logger.LogError(ex.Message);
+    //        throw;
+    //    }
+    //}
     public async Task<bool?> EditProductInfoAsync(ProductInfoDto productInfoDto)
     {
         try
         {
             var productInfo = await _productInfoRepository.GetByIdAsync(productInfoDto.Id);
-            if (productInfo == null)
-            {
-                return null;
-            }
-            var infoUpdate = _mapper.Map<ProductInfo>(productInfoDto);
-            var result = await _productInfoRepository.UpdateAsync(infoUpdate);
+            if (productInfo == null) return null;
+
+            productInfo.Name = productInfoDto.Name;
+            productInfo.Price = productInfoDto.Price;
+            productInfo.Description = productInfoDto.Description;
+            productInfo.Quantity = productInfoDto.Quantity;
+            productInfo.CategoryId = productInfoDto.CategoryId;
+
+            var imageDtos = productInfoDto.ProductImages
+                .Select(pi => new ProductImageDto { ImageUrl = pi.ImageUrl })
+                .ToList();
+            var result = await _productInfoRepository.UpdateProductImagesAsync(productInfo, imageDtos);
             return result;
         }
         catch (Exception ex)
