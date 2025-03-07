@@ -21,5 +21,7 @@ public static class ApplicationServicesExtensions
         services.AddTransient<ICartDetailsService, CartDetailsService>();
         services.AddTransient<ICategoryRepository, CategoryRepository>();
         services.AddTransient<ICategoryService, CategoryService>();
+        services.AddTransient<IProductImageRepository, ProductImageRepository>();
+        services.AddTransient<IProductImageService, ProductImageService>();
     }
 }

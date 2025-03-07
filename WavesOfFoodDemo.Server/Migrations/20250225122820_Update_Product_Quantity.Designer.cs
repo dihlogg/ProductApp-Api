@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using WavesOfFoodDemo.Server.DataContext;
@@ -11,9 +12,11 @@ using WavesOfFoodDemo.Server.DataContext;
 namespace WavesOfFoodDemo.Server.Migrations
 {
     [DbContext(typeof(ProductDbContext))]
-    partial class ProductDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250225122820_Update_Product_Quantity")]
+    partial class Update_Product_Quantity
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -113,9 +116,6 @@ namespace WavesOfFoodDemo.Server.Migrations
                     b.Property<string>("Description")
                         .HasColumnType("text");
 
-                    b.Property<string>("Image")
-                        .HasColumnType("text");
-
                     b.Property<Guid?>("UpdateBy")
                         .HasColumnType("uuid");
 
@@ -125,37 +125,6 @@ namespace WavesOfFoodDemo.Server.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Categories", (string)null);
-                });
-
-            modelBuilder.Entity("WavesOfFoodDemo.Server.Entities.ProductImage", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
-
-                    b.Property<Guid?>("CreateBy")
-                        .HasColumnType("uuid");
-
-                    b.Property<DateTime>("CreateDate")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<string>("ImageUrl")
-                        .HasColumnType("text");
-
-                    b.Property<Guid?>("ProductInfoId")
-                        .HasColumnType("uuid");
-
-                    b.Property<Guid?>("UpdateBy")
-                        .HasColumnType("uuid");
-
-                    b.Property<DateTime>("UpdateDate")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("ProductInfoId");
-
-                    b.ToTable("ProductImages", (string)null);
                 });
 
             modelBuilder.Entity("WavesOfFoodDemo.Server.Entities.ProductInfo", b =>
@@ -174,6 +143,12 @@ namespace WavesOfFoodDemo.Server.Migrations
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("Description")
+                        .HasColumnType("text");
+
+                    b.Property<string>("ImageDetail")
+                        .HasColumnType("text");
+
+                    b.Property<string>("ImageMenu")
                         .HasColumnType("text");
 
                     b.Property<string>("Name")
@@ -266,16 +241,6 @@ namespace WavesOfFoodDemo.Server.Migrations
                     b.Navigation("UserInfos");
                 });
 
-            modelBuilder.Entity("WavesOfFoodDemo.Server.Entities.ProductImage", b =>
-                {
-                    b.HasOne("WavesOfFoodDemo.Server.Entities.ProductInfo", "ProductInfos")
-                        .WithMany("ProductImages")
-                        .HasForeignKey("ProductInfoId")
-                        .OnDelete(DeleteBehavior.Cascade);
-
-                    b.Navigation("ProductInfos");
-                });
-
             modelBuilder.Entity("WavesOfFoodDemo.Server.Entities.ProductInfo", b =>
                 {
                     b.HasOne("WavesOfFoodDemo.Server.Entities.Category", "Categories")
@@ -298,8 +263,6 @@ namespace WavesOfFoodDemo.Server.Migrations
             modelBuilder.Entity("WavesOfFoodDemo.Server.Entities.ProductInfo", b =>
                 {
                     b.Navigation("CartDetails");
-
-                    b.Navigation("ProductImages");
                 });
 
             modelBuilder.Entity("WavesOfFoodDemo.Server.Entities.UserInfo", b =>

@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using WavesOfFoodDemo.Server.DataContext;
@@ -11,9 +12,11 @@ using WavesOfFoodDemo.Server.DataContext;
 namespace WavesOfFoodDemo.Server.Migrations
 {
     [DbContext(typeof(ProductDbContext))]
-    partial class ProductDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250307083738_Update_Product_Image")]
+    partial class Update_Product_Image
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -155,7 +158,7 @@ namespace WavesOfFoodDemo.Server.Migrations
 
                     b.HasIndex("ProductInfoId");
 
-                    b.ToTable("ProductImages", (string)null);
+                    b.ToTable("ProductImage");
                 });
 
             modelBuilder.Entity("WavesOfFoodDemo.Server.Entities.ProductInfo", b =>
@@ -270,8 +273,7 @@ namespace WavesOfFoodDemo.Server.Migrations
                 {
                     b.HasOne("WavesOfFoodDemo.Server.Entities.ProductInfo", "ProductInfos")
                         .WithMany("ProductImages")
-                        .HasForeignKey("ProductInfoId")
-                        .OnDelete(DeleteBehavior.Cascade);
+                        .HasForeignKey("ProductInfoId");
 
                     b.Navigation("ProductInfos");
                 });

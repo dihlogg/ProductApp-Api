@@ -33,17 +33,25 @@ public class ProductDbContext : DbContext
     public virtual DbSet<CartInfo> CartInfos { get; set; }
     public virtual DbSet<CartDetails> CartDetails { get; set; }
     public virtual DbSet<Category> Categories { get; set; }
+    public virtual DbSet<ProductImage> ProductImages { get; set; }
 
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<Category>().ToTable("Categories").HasKey(x => x.Id);
+        modelBuilder.Entity<ProductImage>().ToTable("ProductImages").HasKey(x => x.Id);
 
         modelBuilder.Entity<ProductInfo>().ToTable("ProductInfos").HasKey(x => x.Id);
         modelBuilder.Entity<ProductInfo>()
         .HasOne<Category>(s => s.Categories)
         .WithMany(g => g.ProductInfos)
         .HasForeignKey(s => s.CategoryId);
+
+        modelBuilder.Entity<ProductInfo>()
+        .HasMany(p => p.ProductImages)
+        .WithOne(i => i.ProductInfos)
+        .HasForeignKey(i => i.ProductInfoId)
+        .OnDelete(DeleteBehavior.Cascade);
 
         modelBuilder.Entity<UserInfo>().ToTable("UserInfos").HasKey(x => x.Id);
 

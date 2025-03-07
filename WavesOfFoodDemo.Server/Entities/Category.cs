@@ -4,6 +4,7 @@
     {
         public string? CategoryName { get; set; }
         public string? Description { get; set; }
+        public string? Image { get; set; }
         public ICollection<ProductInfo> ProductInfos { get; set; }
     }
 }

@@ -21,7 +21,6 @@ builder.Services.AddApplicationServicesExtension();
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
-//
 builder.Services.AddDbContext<ProductDbContext>();
 builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 var app = builder.Build();
