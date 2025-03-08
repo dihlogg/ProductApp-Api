@@ -129,4 +129,16 @@ public class ProductInfoService : IProductInfoService
             throw;
         }
     }
+    public async Task<ProductInfoDto?> GetProductDetailsById(Guid id)
+    {
+        try
+        {
+            return await _productInfoRepository.GetProductDetailsByIdAsync(id);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex.Message);
+            throw;
+        }
+    }
 }

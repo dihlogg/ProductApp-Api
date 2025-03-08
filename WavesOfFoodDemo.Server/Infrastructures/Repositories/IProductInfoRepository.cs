@@ -10,4 +10,5 @@ public interface IProductInfoRepository : IGenericRepository<ProductInfo>
     Task<bool> AddProductAsync(ProductInfo productInfo);
     Task<List<ProductInfo>> GetProductAsync();
     Task<bool> UpdateProductImagesAsync(ProductInfo productInfo, List<ProductImageDto> newImages);
+    Task<ProductInfoDto?> GetProductDetailsByIdAsync(Guid id);
 }

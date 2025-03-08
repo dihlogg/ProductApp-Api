@@ -67,5 +67,23 @@ public class ProductInfoRepository : GenericRepository<ProductInfo>, IProductInf
         await _productDbContext.SaveChangesAsync();
         return true;
     }
-
+    public async Task<ProductInfoDto?> GetProductDetailsByIdAsync(Guid id)
+    {
+        return await _productDbContext.ProductInfos
+            .Where(p => p.Id == id)
+            .Select(p => new ProductInfoDto
+            {
+                Id = p.Id,
+                Name = p.Name,
+                Price = p.Price,
+                Description = p.Description,
+                Quantity = p.Quantity,
+                CategoryId = p.CategoryId,
+                ProductImages = p.ProductImages.Select(img => new ProductImageCreateDto
+                {
+                    ImageUrl = img.ImageUrl
+                }).ToList()
+            })
+            .FirstOrDefaultAsync();
+    }
 }
