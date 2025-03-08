@@ -10,4 +10,5 @@ public interface IProductInfoService
     Task<bool?> RemoveProductInfoDtosAsync(Guid id);
     Task<List<ProductInfoDto>> SearchProductInfoDtosAsync(string productName);
     Task<List<ProductInfoDto>> GetPopularProducts();
+    Task<ProductInfoDto?> GetProductDetailsById(Guid id);
 }
