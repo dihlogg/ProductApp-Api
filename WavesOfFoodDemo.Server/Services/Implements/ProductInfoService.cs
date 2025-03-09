@@ -23,7 +23,7 @@ public class ProductInfoService : IProductInfoService
         try
         {
             var data = await _productInfoRepository.GetProductAsync();
-            return _mapper.Map<List<ProductInfoDto>>(data);
+            return data;
         }
         catch (Exception ex)
         {

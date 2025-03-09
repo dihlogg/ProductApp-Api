@@ -43,12 +43,20 @@ namespace WavesOfFoodDemo.Server
             CreateMap<CategoryDto, Category>().ReverseMap()
                 .ForAllMembers(opt => opt.Condition((src, dst, srcMember) => srcMember != null));
 
-            CreateMap<ProductImageCreateDto, ProductImage>().ReverseMap()
-             .ForAllMembers(opt => opt.Condition((src, dst, srcMember) => srcMember != null));
-            CreateMap<ProductImage, ProductImageDto>().ReverseMap()
-                .ForAllMembers(opt => opt.Condition((src, dst, srcMember) => srcMember != null));
             CreateMap<ProductImageDto, ProductImage>().ReverseMap()
+             .ForAllMembers(opt => opt.Condition((src, dst, srcMember) => srcMember != null));
+            //CreateMap<ProductImage, ProductImageDto>().ReverseMap()
+            //    .ForAllMembers(opt => opt.Condition((src, dst, srcMember) => srcMember != null));
+            CreateMap<ProductImageCreateDto, ProductImage>()
+                .ForMember(dest => dest.DisplayOrder, opt => opt.MapFrom(src => OrderGenerator.GetNextOrder()))
+                .ReverseMap()
                 .ForAllMembers(opt => opt.Condition((src, dst, srcMember) => srcMember != null));
         }
+    }
+    public class OrderGenerator
+    {
+        private static int _counter = 0;
+
+        public static int GetNextOrder() => ++_counter;
     }
 }
