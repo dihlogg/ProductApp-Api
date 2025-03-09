@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.Data;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading;
@@ -112,7 +113,6 @@ public class ProductDbContext : DbContext
 
     public override Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
     {
-        var dateNow = DateTime.UtcNow;
         var errorList = new List<ValidationResult>();
 
         var entries = ChangeTracker.Entries().Where(p => p.State == EntityState.Added || p.State == EntityState.Modified).ToList();
@@ -124,14 +124,14 @@ public class ProductDbContext : DbContext
             {
                 if (entity is BaseEntities itemBase)
                 {
-                    itemBase.CreateDate = itemBase.UpdateDate = dateNow;
+                    itemBase.CreateDate = itemBase.UpdateDate = DateTime.UtcNow;
                 }
             }
             else if (entry.State == EntityState.Modified)
             {
                 if (entity is BaseEntities itemBase)
                 {
-                    itemBase.UpdateDate = dateNow;
+                    itemBase.UpdateDate = DateTime.UtcNow;
                 }
             }
 

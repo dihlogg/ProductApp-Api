@@ -27,16 +27,36 @@ public class ProductInfoRepository : GenericRepository<ProductInfo>, IProductInf
         _productDbContext.ProductInfos.Add(productInfo);
         if (productInfo.ProductImages != null && productInfo.ProductImages.Any())
         {
+            //int couter = 1;
+            //foreach (var image in productInfo.ProductImages)
+            //{
+            //    image.DisplayOrder = couter;
+            //    _productDbContext.ProductImages.Add(image);
+            //    couter++;
+            //}  
+                
             _productDbContext.ProductImages.AddRange(productInfo.ProductImages);
         }
 
         await _productDbContext.SaveChangesAsync();
         return true;
     }
-    public async Task<List<ProductInfo>> GetProductAsync()
+    public async Task<List<ProductInfoDto>> GetProductAsync()
     {
         return await _productDbContext.ProductInfos
-            .Include(p => p.ProductImages)
+            .Select(p => new ProductInfoDto
+            {
+                Id = p.Id,
+                Name = p.Name,
+                Price = p.Price,
+                Description = p.Description,
+                Quantity = p.Quantity,
+                CategoryId = p.CategoryId,
+                ProductImages = p.ProductImages.OrderBy(s => s.DisplayOrder).Select(img => new ProductImageCreateDto
+                {
+                    ImageUrl = img.ImageUrl
+                }).ToList()
+            })
             .ToListAsync();
     }
     public async Task<bool> UpdateProductImagesAsync(ProductInfo productInfo, List<ProductImageDto> newImages)
@@ -79,7 +99,7 @@ public class ProductInfoRepository : GenericRepository<ProductInfo>, IProductInf
                 Description = p.Description,
                 Quantity = p.Quantity,
                 CategoryId = p.CategoryId,
-                ProductImages = p.ProductImages.Select(img => new ProductImageCreateDto
+                ProductImages = p.ProductImages.OrderBy(s => s.DisplayOrder).Select(img => new ProductImageCreateDto
                 {
                     ImageUrl = img.ImageUrl
                 }).ToList()
