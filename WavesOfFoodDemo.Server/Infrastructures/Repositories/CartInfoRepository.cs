@@ -10,29 +10,28 @@ public class CartInfoRepository : GenericRepository<CartInfo>, ICartInfoReposito
     public CartInfoRepository(ProductDbContext productDbContext) : base(productDbContext)
     {
     }
-   
-    public async Task<IEnumerable<CartHistoryDto>> GetTransactions(Guid userId)
+
+    public async Task<IEnumerable<CartHistoryDto>> GetTransactions(Guid? userId = null)
     {
         var query = _productDbContext.CartInfos
-            .Where(item => item.UserId == userId)
             .AsNoTracking()
             .AsQueryable();
-        //foreach (var cartInfo in query)
-        //{
-        //    var newObject = new CartHistoryDto();
-        //    newObject.Status = cartInfo.Status;
-        //}
+        if (userId != null)
+        {
+            query = query.Where(item => item.UserId == userId);
+        }
         var result = query.Select(item => new CartHistoryDto()
         {
+            Id = item.Id,
             Status = item.Status,
             DateOrder = item.DateOrder.Value.ToString("MM/dd/yyyy HH:mm"),
             TotalPrice = item.CartDetails.Sum(s => s.Quantity * s.ProductInfo.Price),
             CartDetails = item.CartDetails.Select(cd => new CartdetailHistoryDto()
             {
-               //Image = cd.ProductInfo.ImageMenu,
-               ProductName = cd.ProductInfo.Name,
-               Quantity = cd.Quantity,
-               Price = cd.ProductInfo.Price,
+                //Image = cd.ProductInfo,
+                ProductName = cd.ProductInfo.Name,
+                Quantity = cd.Quantity,
+                Price = cd.ProductInfo.Price,
             })
         });
         return await result.ToListAsync();
