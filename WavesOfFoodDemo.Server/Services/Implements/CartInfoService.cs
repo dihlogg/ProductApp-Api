@@ -87,11 +87,19 @@ namespace WavesOfFoodDemo.Server.Services
             }
         }
 
-        public async Task<IEnumerable<CartHistoryDto>> GetTransactions(Guid userId)
+        public async Task<IEnumerable<CartHistoryDto>> GetTransactions(Guid? userId = null)
         {
             try
             {
-                return await _cartInfoRepository.GetTransactions(userId);
+                if (userId == null)
+                {
+                    return await _cartInfoRepository.GetTransactions();
+                }
+                else
+                {
+                    return await _cartInfoRepository.GetTransactions(userId);
+                }
+
             }
             catch (Exception ex)
             {
@@ -112,14 +120,6 @@ namespace WavesOfFoodDemo.Server.Services
                     return null;
                 }
                 cartInfo.Status = cartInfoCreateDto.Status;
-                //if(DateTime.TryParse(cartInfoCreateDto.DateOrder, out var dateOrder))
-                //{
-                //    cartInfo.DateOrder = dateOrder;
-                //}
-                //else
-                //{
-                //    cartInfo.DateOrder = DateTime.UtcNow;
-                //}
                 cartInfo.DateOrder = cartInfoCreateDto.DateOrder;
                 // remove cart detail
                 cartInfo.CartDetails.Clear();
@@ -143,14 +143,6 @@ namespace WavesOfFoodDemo.Server.Services
                 cartInfo.Id = Guid.NewGuid();
                 cartInfo.Status = cartInfoCreateDto.Status;
                 cartInfo.DateOrder = cartInfoCreateDto.DateOrder;
-                //if (DateTime.TryParse(cartInfoCreateDto.DateOrder, out var dateOrder))
-                //{
-                //    cartInfo.DateOrder = dateOrder;
-                //}
-                //else
-                //{
-                //    cartInfo.DateOrder = DateTime.UtcNow;
-                //}
                 cartInfo.UserId = cartInfoCreateDto.UserId;
                 result = await _cartInfoRepository.AddAsync(cartInfo);
                 foreach (var item in cartInfoCreateDto.CartDetailDtos)
@@ -166,6 +158,26 @@ namespace WavesOfFoodDemo.Server.Services
                 }
             }
             return result;
+        }
+        public async Task<bool?> UpdateStatusCartInfo(UpdateStatusCartDetailDto updateStatusCart)
+        {
+
+            try
+            {
+                var cartInfo = await _cartInfoRepository.GetByIdAsync(updateStatusCart.CartInfoId);
+                if (cartInfo == null)
+                {
+                    return null;
+                }
+                cartInfo.Status = updateStatusCart.Status;
+                var result = await _cartInfoRepository.UpdateAsync(cartInfo);
+                return result;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex.Message);
+                throw;
+            }
         }
     }
 }

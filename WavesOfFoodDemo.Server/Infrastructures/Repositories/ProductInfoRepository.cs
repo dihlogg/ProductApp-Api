@@ -18,23 +18,27 @@ public class ProductInfoRepository : GenericRepository<ProductInfo>, IProductInf
         return await query.AsNoTracking().ToListAsync();
     }
 
-    public Task<List<ProductInfoDto>> GetPopularProducts()
+    public async Task<List<ProductInfo>> GetPopularProducts()
     {
-        throw new NotImplementedException();
+        var query = _productDbContext.CartDetails.AsQueryable();
+        var queryGroup = query.GroupBy(s => s.ProductId);
+        var newQuery = queryGroup
+            .Select(s => new
+            {
+                ProductId = s.Key,
+                ProductInfoAfterGroup = s.First().ProductInfo,
+                SumQuantity = s.Sum(t => t.Quantity)
+            })
+            .OrderByDescending(s => s.SumQuantity)
+            .Take(4);
+        var dataGroup = await newQuery.ToListAsync();
+        return dataGroup.Select(s => s.ProductInfoAfterGroup).ToList();
     }
     public async Task<bool> AddProductAsync(ProductInfo productInfo)
     {
         _productDbContext.ProductInfos.Add(productInfo);
         if (productInfo.ProductImages != null && productInfo.ProductImages.Any())
-        {
-            //int couter = 1;
-            //foreach (var image in productInfo.ProductImages)
-            //{
-            //    image.DisplayOrder = couter;
-            //    _productDbContext.ProductImages.Add(image);
-            //    couter++;
-            //}  
-                
+        {       
             _productDbContext.ProductImages.AddRange(productInfo.ProductImages);
         }
 

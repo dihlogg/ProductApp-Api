@@ -116,12 +116,12 @@ public class ProductInfoService : IProductInfoService
             throw;
         }
     }
-
     public async Task<List<ProductInfoDto>> GetPopularProducts()
     {
         try
         {
-            return await _productInfoRepository.GetPopularProducts();
+            var data = await _productInfoRepository.GetPopularProducts();
+            return _mapper.Map<List<ProductInfoDto>>(data);
         }
         catch (Exception ex)
         {

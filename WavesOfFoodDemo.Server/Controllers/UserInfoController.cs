@@ -100,7 +100,7 @@ namespace WavesOfFoodDemo.Server.Controllers
         [HttpPost("LoginUser")]
         public async Task<IActionResult> LoginUserInfoAsync(UserLoginDto userLoginDto)
         {
-            if(!ModelState.IsValid)
+            if (!ModelState.IsValid)
             {
                 return BadRequest();
             }
