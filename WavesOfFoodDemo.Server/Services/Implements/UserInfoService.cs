@@ -112,4 +112,17 @@ public class UserInfoService : IUserInfoService
             throw;
         }
     }
+
+    public async Task<UserInfoDto?> GetUserInfoByIdAsync(Guid id)
+    {
+        try
+        {
+            return await _userInfoRepository.GetUserInfoByIdAsync(id);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex.Message);
+            throw;
+        }
+    }
 }
