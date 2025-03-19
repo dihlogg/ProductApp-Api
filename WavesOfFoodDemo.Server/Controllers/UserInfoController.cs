@@ -32,6 +32,23 @@ namespace WavesOfFoodDemo.Server.Controllers
                 return BadRequest(ex.Message);
             }
         }
+        [HttpGet("GetUserInfoByIdAsync/{id}")]
+        public async Task<IActionResult> GetUserInfoByIdAsync(Guid id)
+        {
+            try
+            {
+                var data = await _userInfoService.GetUserInfoByIdAsync(id);
+                if (data == null)
+                {
+                    return NotFound();
+                }
+                return Ok(data);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
 
         [HttpGet("SearchUserInfos")]
         public async Task<IActionResult> SearchUserInfos(string userName)

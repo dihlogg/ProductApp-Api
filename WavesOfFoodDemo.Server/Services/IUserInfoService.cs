@@ -8,6 +8,7 @@ namespace WavesOfFoodDemo.Server.Services;
 public interface IUserInfoService
 {
     Task<List<UserInfoDto>> GetUserInfoDtosAsync();
+    Task<UserInfoDto?> GetUserInfoByIdAsync(Guid id);
     Task<bool> AddUserInfoAsync(UserInfoCreateDto userInfoCreateDto);
     Task<bool?> EditUserInfoAsync(UserInfoDto userInfoDto);
     Task<bool?> RemoveUserInfoDtosAsync(Guid id);

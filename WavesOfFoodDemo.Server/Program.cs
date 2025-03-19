@@ -1,11 +1,18 @@
+using StackExchange.Redis;
 using WavesOfFoodDemo.Server.AppSettings;
 using WavesOfFoodDemo.Server.DataContext;
+using WavesOfFoodDemo.Server.Services;
+using WavesOfFoodDemo.Server.Services.Implements;
 
 var builder = WebApplication.CreateBuilder(args);
 // settings
 var postgreSetting = new PostgreSetting();
 builder.Configuration.Bind("PostgreSetting", postgreSetting);
 builder.Services.AddSingleton(postgreSetting);
+// Load c?u hình Redis
+var redisConfig = builder.Configuration.GetSection("Redis:ConnectionString").Value;
+builder.Services.AddSingleton<IConnectionMultiplexer>(ConnectionMultiplexer.Connect(redisConfig));
+builder.Services.AddSingleton<IRedisService, RedisService>();
 // Add services to the container.
 builder.Services.AddCors(options =>
 {

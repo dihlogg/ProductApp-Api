@@ -5,7 +5,7 @@ using WavesOfFoodDemo.Server.Entities;
 
 namespace WavesOfFoodDemo.Server.Infrastructures;
 
-public class UserInfoRepository : GenericRepository<UserInfo>,IUserInfoRepository
+public class UserInfoRepository : GenericRepository<UserInfo>, IUserInfoRepository
 {
     public UserInfoRepository(ProductDbContext productDbContext) : base(productDbContext)
     {
@@ -23,5 +23,21 @@ public class UserInfoRepository : GenericRepository<UserInfo>,IUserInfoRepositor
         var query = _productDbContext.UserInfos.AsQueryable();
         query = query.Where(s => s.UserName == userName && s.UserPassword == userPassword);
         return await query.FirstOrDefaultAsync();
+    }
+
+    public async Task<UserInfoDto?> GetUserInfoByIdAsync(Guid id)
+    {
+        return await _productDbContext.UserInfos
+            .Where(u => u.Id == id)
+            .Select(u => new UserInfoDto
+            {
+                Id = u.Id,
+                UserName = u.UserName,
+                UserPassword = u.UserPassword,
+                UserFullName = u.UserFullName,
+                UserAddress = u.UserAddress,
+                UserPhone = u.UserPhone,
+            })
+            .FirstOrDefaultAsync();
     }
 }
