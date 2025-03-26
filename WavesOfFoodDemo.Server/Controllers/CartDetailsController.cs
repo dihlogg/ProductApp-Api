@@ -1,9 +1,11 @@
 ﻿using System.Text.Json;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.Caching.StackExchangeRedis;
 using WavesOfFoodDemo.Server.AppSettings;
 using WavesOfFoodDemo.Server.Dtos;
 using WavesOfFoodDemo.Server.Dtos.CartDetails;
+using WavesOfFoodDemo.Server.Hubs;
 using WavesOfFoodDemo.Server.Services;
 
 namespace WavesOfFoodDemo.Server.Controllers
@@ -17,16 +19,19 @@ namespace WavesOfFoodDemo.Server.Controllers
         private readonly IProductInfoService _productInfoService;
         private readonly IRedisService _redisService;
         private const string CART_KEY_PREFIX = "CartRedis:";
+        private readonly IHubContext<CartHub> _hubContext;
 
         public CartDetailsController(
             ILogger<CartDetailsController> logger,
             ICartDetailsService cartDetailsService,
             IRedisService redisService,
+            IHubContext<CartHub> hubContext,
             IProductInfoService productInfoService)
         {
             _logger = logger;
             _cartDetailsService = cartDetailsService;
             _redisService = redisService;
+            _hubContext = hubContext;
             _productInfoService = productInfoService;
         }
         [HttpPost("Redis/PostCartRedis")]
@@ -47,7 +52,11 @@ namespace WavesOfFoodDemo.Server.Controllers
                 var serializedValue = JsonSerializer.Serialize(cartValue);
 
                 // lưu redis & set token chết
-                await _redisService.SetValueAsync(key, serializedValue, TimeSpan.FromDays(7));
+                await _redisService.SetValueAsync(key, serializedValue, TimeSpan.FromDays(30));
+
+                // Gửi event tới tất cả tab của user đó
+                await _hubContext.Clients.Group(cartItem.UserId.ToString())
+                    .SendAsync("ReceiveCartUpdate", "add", cartValue);
 
                 return Ok(true);
             }
@@ -56,6 +65,7 @@ namespace WavesOfFoodDemo.Server.Controllers
                 return Ok(false);
             }
         }
+
         [HttpGet("Redis/GetCartItems/{userId}")]
         public async Task<IActionResult> GetCartItems(Guid userId)
         {
@@ -81,13 +91,19 @@ namespace WavesOfFoodDemo.Server.Controllers
                 return BadRequest(false);
             }
         }
-        [HttpDelete("Redis/DeleteCartRedis/user/{userId}/product/{productId}")]
-        public async Task<IActionResult> DeleteCartRedis(Guid userId, Guid productId)
+        [HttpDelete("Redis/DeleteProductFromCartRedis/user/{userId}/product/{productId}")]
+        public async Task<IActionResult> DeleteProductFromCartRedis(Guid userId, Guid productId)
         {
             try
             {
                 var key = $"CartRedis:{userId}:{productId}";
                 var result = await _redisService.DeleteKeyAsync(key);
+                if (result)
+                {
+                    // Gửi thông báo xóa qua SignalR
+                    await _hubContext.Clients.Group(userId.ToString())
+                        .SendAsync("ReceiveCartUpdate", "delete", new { ProductId = productId });
+                }
                 return Ok(result);
             }
             catch
@@ -101,18 +117,8 @@ namespace WavesOfFoodDemo.Server.Controllers
         {
             try
             {
-                List<CartDetailsDto> cartDetails;
-                var key = $"{nameof(CartDetailsController)}:demo";
-                var data = await _redisService.GetValueAsync(key);
-                if (!string.IsNullOrEmpty(data))
-                {
-                    cartDetails = JsonSerializer.Deserialize<List<CartDetailsDto>>(data);
-                    return Ok(cartDetails);
-                }
-                cartDetails = await _cartDetailsService.GetCartDetailsDtosAsync();
-                data = JsonSerializer.Serialize(cartDetails);
-                await _redisService.SetValueAsync(key, data, TimeSpan.FromSeconds(10));
-                return Ok(cartDetails);
+                var data = await _cartDetailsService.GetCartDetailsDtosAsync();
+                return Ok(data);
             }
             catch (Exception ex)
             {
