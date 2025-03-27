@@ -110,4 +110,25 @@ public class ProductInfoRepository : GenericRepository<ProductInfo>, IProductInf
             })
             .FirstOrDefaultAsync();
     }
+
+    public async Task<List<ProductInfoDto>> GetProductsByCategoryIdAsync(Guid categoryId)
+    {
+        return await _productDbContext.ProductInfos
+            .Where(p => p.CategoryId == categoryId)
+            .Select(p => new ProductInfoDto
+            {
+                Id = p.Id,
+                Name = p.Name,
+                Price = p.Price,
+                Description = p.Description,
+                Quantity = p.Quantity,
+                CategoryId = p.CategoryId,
+                ProductImages = p.ProductImages.OrderBy(s => s.DisplayOrder).Select(img => new ProductImageCreateDto
+                {
+                    ImageUrl = img.ImageUrl
+                }).ToList()
+            })
+            .ToListAsync(); // trả về list sp
+    }
+
 }

@@ -33,6 +33,7 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddDbContext<ProductDbContext>();
 builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 builder.Services.AddSignalR();
+builder.Services.AddHttpClient();
 var app = builder.Build();
 
 app.UseDefaultFiles();

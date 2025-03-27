@@ -128,5 +128,22 @@ namespace WavesOfFoodDemo.Server.Controllers
                 return BadRequest(ex.Message);
             }
         }
+        [HttpGet("GetProductsByCategoryId/{categoryId}")]
+        public async Task<IActionResult> GetProductsByCategoryId(Guid categoryId)
+        {
+            try
+            {
+                var data = await _productInfoService.GetProductsByCategoryIdAsync(categoryId);
+                if (data == null)
+                {
+                    return NotFound();
+                }
+                return Ok(data);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
     }
 }
