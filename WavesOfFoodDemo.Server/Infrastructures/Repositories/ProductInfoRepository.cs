@@ -130,5 +130,10 @@ public class ProductInfoRepository : GenericRepository<ProductInfo>, IProductInf
             })
             .ToListAsync(); // trả về list sp
     }
+    public async Task UpdateProductAsync(ProductInfo productInfo)
+    {
+        _productDbContext.ProductInfos.Update(productInfo);
+        await _productDbContext.SaveChangesAsync();
+    }
 
 }

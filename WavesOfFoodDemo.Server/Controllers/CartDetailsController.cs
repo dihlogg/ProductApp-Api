@@ -1,7 +1,9 @@
 ﻿using System.Text.Json;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.StackExchangeRedis;
+using Newtonsoft.Json.Linq;
 using WavesOfFoodDemo.Server.AppSettings;
 using WavesOfFoodDemo.Server.Dtos;
 using WavesOfFoodDemo.Server.Dtos.CartDetails;
@@ -112,6 +114,25 @@ namespace WavesOfFoodDemo.Server.Controllers
             }
         }
 
+        [HttpPost("Order/PlaceOrder")]
+        public async Task<IActionResult> PlaceOrder([FromBody] CartDetailsRequestDto request)
+        {
+            try
+            {
+                if (request.UserId == null || request.Products == null || !request.Products.Any())
+                {
+                    return BadRequest(false);
+                }
+
+                bool result = await _cartDetailsService.ProcessOrderAsync(request.UserId.Value, request.Products);
+                return result ? Ok(true) : BadRequest(new { Success = false, Message = "Order processing failed" });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
         [HttpGet("GetCartDetails")]
         public async Task<IActionResult> GetCartDetails()
         {
@@ -126,9 +147,8 @@ namespace WavesOfFoodDemo.Server.Controllers
             }
         }
 
-
-        [HttpPost("PostCartDetails")]
-        public async Task<IActionResult> PostCartDetails(CartDetailsCreateDto cartDetailsCreateDto)
+        [HttpPost("PostCartDetails/{cartId}")]
+        public async Task<IActionResult> PostCartDetails(Guid cartId, CartDetailsCreateDto cartDetailsCreateDto)
         {
             try
             {

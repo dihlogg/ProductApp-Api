@@ -9,5 +9,14 @@ public class CartDetailsRepository : GenericRepository<CartDetails>, ICartDetail
     public CartDetailsRepository(ProductDbContext productDbContext) : base(productDbContext)
     {
     }
+    public async Task<ProductInfo> GetProductByIdAsync(Guid productId)
+    {
+        return await _productDbContext.ProductInfos.FirstOrDefaultAsync(p => p.Id == productId);
+    }
 
+    public async Task UpdateProductAsync(ProductInfo productInfo)
+    {
+        _productDbContext.ProductInfos.Update(productInfo);
+        await _productDbContext.SaveChangesAsync();
+    }
 }
