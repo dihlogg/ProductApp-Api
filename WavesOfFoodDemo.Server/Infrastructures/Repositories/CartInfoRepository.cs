@@ -28,7 +28,13 @@ public class CartInfoRepository : GenericRepository<CartInfo>, ICartInfoReposito
             TotalPrice = item.CartDetails.Sum(s => s.Quantity * s.ProductInfo.Price),
             CartDetails = item.CartDetails.Select(cd => new CartdetailHistoryDto()
             {
-                //Image = cd.ProductInfo,
+                ProductImages = cd.ProductInfo.ProductImages
+                .OrderBy(s => s.DisplayOrder)
+                .Select(img => new ProductImageCreateDto
+                {
+                    ImageUrl = img.ImageUrl
+                })
+                .ToList(),
                 ProductName = cd.ProductInfo.Name,
                 Quantity = cd.Quantity,
                 Price = cd.ProductInfo.Price,
