@@ -10,7 +10,7 @@ public class CartHistoryDto
 
 public class CartdetailHistoryDto
 {
-    public string Image { get; set; }
+    public List<ProductImageCreateDto> ProductImages { get; set; } = new List<ProductImageCreateDto>();
     public string ProductName { get; set; }
     public decimal Price { get; set; }
     public int Quantity { get; set; }
