@@ -23,5 +23,6 @@ public static class ApplicationServicesExtensions
         services.AddTransient<ICategoryService, CategoryService>();
         services.AddTransient<IProductImageRepository, ProductImageRepository>();
         services.AddTransient<IProductImageService, ProductImageService>();
+        services.AddTransient<IMLService, MLService>();
     }
 }

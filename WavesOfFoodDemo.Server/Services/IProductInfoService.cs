@@ -1,4 +1,5 @@
 ﻿using WavesOfFoodDemo.Server.Dtos;
+using WavesOfFoodDemo.Server.Dtos.Clustering;
 
 namespace WavesOfFoodDemo.Server.Services;
 
@@ -12,4 +13,5 @@ public interface IProductInfoService
     Task<List<ProductInfoDto>> GetPopularProducts();
     Task<ProductInfoDto?> GetProductDetailsById(Guid id);
     Task<List<ProductInfoDto>> GetProductsByCategoryIdAsync(Guid categoryId);
+    Task<List<ProductFeatureDto>> GetProductFeaturesAsync();
 }

@@ -33,20 +33,6 @@ public class UserInfoService : IUserInfoService
             throw;
         }
     }
-
-    //public async Task<bool> AddUserInfoAsync(UserInfoCreateDto userInfoCreateDto)
-    //{
-    //    try
-    //    {
-    //        var info = _mapper.Map<UserInfo>(userInfoCreateDto);
-    //        return await _userInfoRepository.AddAsync(info);
-    //    }
-    //    catch (Exception ex)
-    //    {
-    //        _logger.LogError(ex.Message);
-    //        throw;
-    //    }
-    //}
     public async Task<bool> AddUserInfoAsync(UserInfoCreateDto userInfoCreateDto)
     {
         try

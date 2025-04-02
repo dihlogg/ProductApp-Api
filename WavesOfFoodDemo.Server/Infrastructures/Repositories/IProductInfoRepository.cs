@@ -1,4 +1,5 @@
 ﻿using WavesOfFoodDemo.Server.Dtos;
+using WavesOfFoodDemo.Server.Dtos.Clustering;
 using WavesOfFoodDemo.Server.Entities;
 
 namespace WavesOfFoodDemo.Server.Infrastructures;
@@ -13,4 +14,5 @@ public interface IProductInfoRepository : IGenericRepository<ProductInfo>
     Task<ProductInfoDto?> GetProductDetailsByIdAsync(Guid id);
     Task<List<ProductInfoDto>> GetProductsByCategoryIdAsync(Guid categoryId);
     Task UpdateProductAsync(ProductInfo productInfo);
+    Task<List<ProductFeatureDto>> GetProductFeaturesAsync();
 }
