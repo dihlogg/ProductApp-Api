@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using WavesOfFoodDemo.Server.DataContext;
 using WavesOfFoodDemo.Server.Dtos;
+using WavesOfFoodDemo.Server.Dtos.Clustering;
 using WavesOfFoodDemo.Server.Entities;
 
 namespace WavesOfFoodDemo.Server.Infrastructures;
@@ -10,7 +11,7 @@ public class ProductInfoRepository : GenericRepository<ProductInfo>, IProductInf
     public ProductInfoRepository(ProductDbContext productDbContext) : base(productDbContext)
     {
     }
-  
+
     public async Task<List<ProductInfo>> SearchProductInfoDtosAsync(string productName)
     {
         var query = _productDbContext.ProductInfos.AsQueryable();
@@ -20,17 +21,19 @@ public class ProductInfoRepository : GenericRepository<ProductInfo>, IProductInf
 
     public async Task<List<ProductInfo>> GetPopularProducts()
     {
-        var query = _productDbContext.CartDetails.AsQueryable();
+        var query = _productDbContext.CartDetails
+            .Include(cd => cd.ProductInfo.ProductImages)
+            .AsQueryable();
         var queryGroup = query.GroupBy(s => s.ProductId);
         var newQuery = queryGroup
             .Select(s => new
             {
                 ProductId = s.Key,
                 ProductInfoAfterGroup = s.First().ProductInfo,
-                SumQuantity = s.Sum(t => t.Quantity)
+                SumQuantity = s.Sum(t => t.Quantity),
             })
             .OrderByDescending(s => s.SumQuantity)
-            .Take(4);
+            .Take(5);
         var dataGroup = await newQuery.ToListAsync();
         return dataGroup.Select(s => s.ProductInfoAfterGroup).ToList();
     }
@@ -38,7 +41,7 @@ public class ProductInfoRepository : GenericRepository<ProductInfo>, IProductInf
     {
         _productDbContext.ProductInfos.Add(productInfo);
         if (productInfo.ProductImages != null && productInfo.ProductImages.Any())
-        {       
+        {
             _productDbContext.ProductImages.AddRange(productInfo.ProductImages);
         }
 
@@ -135,5 +138,32 @@ public class ProductInfoRepository : GenericRepository<ProductInfo>, IProductInf
         _productDbContext.ProductInfos.Update(productInfo);
         await _productDbContext.SaveChangesAsync();
     }
+    public async Task<List<ProductFeatureDto>> GetProductFeaturesAsync()
+    {
+        var productList = await _productDbContext.ProductInfos
+          .Where(p => p.CartDetails.Any(cd => cd.CartInfo.Status == "Completed"))
+          .Select(p => new ProductFeatureDto
+          {
+              Id = p.Id,
+              Name = p.Name,
+              Price = p.Price,
+              Description = p.Description,
+              Quantity = p.Quantity,
+              CategoryId = p.CategoryId,
+              ProductImages = p.ProductImages.OrderBy(s => s.DisplayOrder)
+                  .Select(img => new ProductImageCreateDto { ImageUrl = img.ImageUrl })
+                  .ToList(),
+              OrderCount = p.CartDetails
+                  .Where(cd => cd.CartInfo.Status == "Completed")
+                  .Select(cd => cd.CartInfo)
+                  .Distinct()
+                  .Count(),
+              SoldQuantity = p.CartDetails
+                  .Where(cd => cd.CartInfo.Status == "Completed")
+                  .Sum(cd => (int?)cd.Quantity) ?? 0
+          })
+          .ToListAsync();
 
+        return productList;
+    }
 }

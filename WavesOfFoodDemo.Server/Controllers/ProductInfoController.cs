@@ -10,13 +10,19 @@ namespace WavesOfFoodDemo.Server.Controllers
     {
         private readonly ILogger<ProductInfoController> _logger;
         private readonly IProductInfoService _productInfoService;
+        private readonly IMLService _mlService;
+        private readonly IRedisService _redisService;
 
         public ProductInfoController(
             ILogger<ProductInfoController> logger,
-            IProductInfoService productInfoService)
+            IProductInfoService productInfoService,
+            IMLService mlService,
+            IRedisService redisService)
         {
             _logger = logger;
             _productInfoService = productInfoService;
+            _mlService = mlService;
+            _redisService = redisService;
         }
 
         [HttpGet("GetProductInfos")]
@@ -138,6 +144,19 @@ namespace WavesOfFoodDemo.Server.Controllers
                 {
                     return NotFound();
                 }
+                return Ok(data);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+        [HttpGet("GetFeaturedProducts")]
+        public async Task<IActionResult> GetFeaturedProducts()
+        {
+            try
+            {
+                var data = await _mlService.GetFeaturedProductsAsync();
                 return Ok(data);
             }
             catch (Exception ex)

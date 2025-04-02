@@ -114,8 +114,8 @@ namespace WavesOfFoodDemo.Server.Controllers
             }
         }
 
-        [HttpPost("Order/PlaceOrder")]
-        public async Task<IActionResult> PlaceOrder([FromBody] CartDetailsRequestDto request)
+        [HttpPost("PostCartDetailsRedis")]
+        public async Task<IActionResult> PostCartDetailsRedis([FromBody] CartDetailsRequestDto request)
         {
             try
             {

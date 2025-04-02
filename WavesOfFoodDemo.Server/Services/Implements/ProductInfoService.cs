@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using WavesOfFoodDemo.Server.Dtos;
+using WavesOfFoodDemo.Server.Dtos.Clustering;
 using WavesOfFoodDemo.Server.Entities;
 using WavesOfFoodDemo.Server.Infrastructures;
 
@@ -45,25 +46,6 @@ public class ProductInfoService : IProductInfoService
             throw;
         }
     }
-    //public async Task<bool?> EditProductInfoAsync(ProductInfoDto productInfoDto)
-    //{
-    //    try
-    //    {
-    //        var productInfo = await _productInfoRepository.GetByIdAsync(productInfoDto.Id);
-    //        if (productInfo == null)
-    //        {
-    //            return null;
-    //        }
-    //        var infoUpdate = _mapper.Map<ProductInfo>(productInfoDto);
-    //        var result = await _productInfoRepository.UpdateAsync(infoUpdate);
-    //        return result;
-    //    }
-    //    catch (Exception ex)
-    //    {
-    //        _logger.LogError(ex.Message);
-    //        throw;
-    //    }
-    //}
     public async Task<bool?> EditProductInfoAsync(ProductInfoDto productInfoDto)
     {
         try
@@ -147,6 +129,19 @@ public class ProductInfoService : IProductInfoService
         try
         {
             return await _productInfoRepository.GetProductsByCategoryIdAsync(categoryId);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex.Message);
+            throw;
+        }
+    }
+
+    public async Task<List<ProductFeatureDto>> GetProductFeaturesAsync()
+    {
+        try
+        {
+            return await _productInfoRepository.GetProductFeaturesAsync();
         }
         catch (Exception ex)
         {
