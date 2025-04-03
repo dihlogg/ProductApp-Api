@@ -151,6 +151,53 @@ namespace WavesOfFoodDemo.Server.Controllers
                 return BadRequest(ex.Message);
             }
         }
+        [HttpPost("UpdateClusters")]
+        public async Task<IActionResult> UpdateClusters()
+        {
+            await _mlService.UpdateClustersAsync();
+            return Ok(new { message = "Clusters updated successfully" });
+        }
+        [HttpGet("GetCluster/{productId}")]
+        public async Task<IActionResult> GetCluster(Guid productId)
+        {
+            try
+            {
+                var data = await _redisService.GetClusterDataAsync(productId);
+                if (data == null)
+                {
+                    return NotFound();
+                }
+                return Ok(new { productId, data });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+        [HttpGet("GetProductsByCluster/{clusterId}")]
+        public async Task<IActionResult> GetProductsByCluster(int clusterId)
+        {
+            var allProductKeys = await _redisService.GetAllKeysAsync("cluster:*");
+
+            var matchingProducts = new List<Guid>();
+
+            foreach (var key in allProductKeys)
+            {
+                string productIdString = key.Replace("cluster:", "");
+
+                if (Guid.TryParse(productIdString, out Guid productId))
+                {
+                    int? storedClusterId = await _redisService.GetClusterDataAsync(productId);
+
+                    if (storedClusterId.HasValue && storedClusterId.Value == clusterId)
+                    {
+                        matchingProducts.Add(productId);
+                    }
+                }
+            }
+
+            return Ok(new { clusterId, products = matchingProducts });
+        }
         [HttpGet("GetFeaturedProducts")]
         public async Task<IActionResult> GetFeaturedProducts()
         {

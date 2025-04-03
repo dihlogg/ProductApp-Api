@@ -1,5 +1,4 @@
-﻿using Microsoft.Extensions.DependencyInjection;
-using WavesOfFoodDemo.Server.Infrastructures;
+﻿using WavesOfFoodDemo.Server.Infrastructures;
 using WavesOfFoodDemo.Server.Infrastructures.Repositories;
 using WavesOfFoodDemo.Server.Services;
 using WavesOfFoodDemo.Server.Services.Implements;
@@ -23,6 +22,7 @@ public static class ApplicationServicesExtensions
         services.AddTransient<ICategoryService, CategoryService>();
         services.AddTransient<IProductImageRepository, ProductImageRepository>();
         services.AddTransient<IProductImageService, ProductImageService>();
+        services.AddTransient<IRedisService, RedisService>();
         services.AddTransient<IMLService, MLService>();
     }
 }
