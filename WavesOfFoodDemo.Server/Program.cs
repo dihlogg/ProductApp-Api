@@ -2,7 +2,6 @@ using StackExchange.Redis;
 using WavesOfFoodDemo.Server.AppSettings;
 using WavesOfFoodDemo.Server.DataContext;
 using WavesOfFoodDemo.Server.Hubs;
-using WavesOfFoodDemo.Server.Services;
 using WavesOfFoodDemo.Server.Services.Implements;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -10,10 +9,32 @@ var builder = WebApplication.CreateBuilder(args);
 var postgreSetting = new PostgreSetting();
 builder.Configuration.Bind("PostgreSetting", postgreSetting);
 builder.Services.AddSingleton(postgreSetting);
+
 // Load config Redis
-var redisConfig = builder.Configuration.GetSection("Redis:ConnectionString").Value;
-builder.Services.AddSingleton<IConnectionMultiplexer>(ConnectionMultiplexer.Connect(redisConfig));
-builder.Services.AddSingleton<IRedisService, RedisService>();
+var redisConfig = builder.Configuration.GetSection("Redis:Instances");
+var defaultRedisConnString = redisConfig["Default"];
+var secondaryRedisConnString = redisConfig["Secondary"];
+
+// Register Redis connections
+builder.Services.AddSingleton<IConnectionMultiplexer>(sp =>
+    ConnectionMultiplexer.Connect(defaultRedisConnString));
+
+builder.Services.AddSingleton<IConnectionMultiplexer>(sp =>
+    ConnectionMultiplexer.Connect(secondaryRedisConnString));
+
+// Register named instances
+builder.Services.AddSingleton<Func<string, IConnectionMultiplexer>>(sp => key =>
+{
+    return key switch
+    {
+        "SecondaryRedis" => sp.GetRequiredService<IConnectionMultiplexer>(),
+        _ => sp.GetRequiredService<IConnectionMultiplexer>()
+    };
+});
+
+// config background service
+builder.Services.AddHostedService<MLBackgroundService>();
+
 // Add services to the container.
 builder.Services.AddCors(options =>
 {

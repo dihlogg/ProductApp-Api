@@ -1,13 +1,11 @@
 ﻿using System.Text.Json;
 using AutoMapper;
 using Microsoft.AspNetCore.SignalR;
-using Microsoft.EntityFrameworkCore;
 using WavesOfFoodDemo.Server.AppSettings;
 using WavesOfFoodDemo.Server.Dtos;
 using WavesOfFoodDemo.Server.Entities;
 using WavesOfFoodDemo.Server.Hubs;
 using WavesOfFoodDemo.Server.Infrastructures;
-using WavesOfFoodDemo.Server.Services.Implements;
 
 namespace WavesOfFoodDemo.Server.Services
 {
@@ -136,7 +134,6 @@ namespace WavesOfFoodDemo.Server.Services
                 };
                 _cartInfoRepository.Add(cartInfo);
 
-                CartDetails cartDetails = new CartDetails { Id = Guid.NewGuid() };
                 var productList = new List<object>();
                 decimal totalPrice = 0;
                 int totalQuantity = 0;
@@ -158,13 +155,18 @@ namespace WavesOfFoodDemo.Server.Services
                         throw new Exception($"Order quantity for product {item.ProductId} exceeds stock. Available: {productInDb.Quantity ?? 0}");
                     }
 
-                    // update product quantity
-                    productInDb.Quantity = newQuantity;
-                    cartDetails.CartId = cartInfo.Id;
-                    cartDetails.ProductId = item.ProductId;
-                    cartDetails.Quantity = item.Quantity;
+                    // new cart details for product
+                    CartDetails cartDetails = new CartDetails
+                    {
+                        Id = Guid.NewGuid(),
+                        CartId = cartInfo.Id,
+                        ProductId = item.ProductId,
+                        Quantity = item.Quantity
+                    };
                     _cartDetailsRepository.Add(cartDetails);
 
+                    // update product quantity
+                    productInDb.Quantity = newQuantity;
                     await _productInfoRepository.UpdateProductAsync(productInDb);
 
                     // add product details for payload to n8n
@@ -196,7 +198,7 @@ namespace WavesOfFoodDemo.Server.Services
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex.Message);
+                _logger.LogError($"Error processing order for user {userId}: {ex.Message}");
                 throw;
             }
         }

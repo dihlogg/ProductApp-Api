@@ -9,54 +9,34 @@ namespace WavesOfFoodDemo.Server.Services.Implements
         private readonly ILogger<MLService> _logger;
         private readonly IMapper _mapper;
         private readonly IProductInfoService _productInfoService;
+        private readonly IRedisService _redisService;
 
-        public MLService(ILogger<MLService> logger, IMapper mapper, IProductInfoService productInfoService)
+        public MLService(ILogger<MLService> logger, IMapper mapper, IProductInfoService productInfoService, IRedisService redisService)
         {
             _logger = logger;
             _mapper = mapper;
             _productInfoService = productInfoService;
+            _redisService = redisService;
         }
         public async Task<List<ProductFeatureDto>> GetFeaturedProductsAsync()
         {
             var productList = await _productInfoService.GetProductFeaturesAsync();
 
-            // tranfer dta to features ML .Net
-            var mlData = productList.Select(p => new ProductFeatureMLDto
-            {
-                Price = (float)p.Price,
-                OrderCount = p.OrderCount,
-                SoldQuantity = p.SoldQuantity
-            }).ToList();
+            // get clusterId fr redis 6380
+            var productClusters = new List<(ProductFeatureDto Product, int ClusterId)>();
 
-            if (mlData.Count < 3) // product có cart sts == completed < 3 => trả về list product hiện tại k cần cluster
+            foreach (var product in productList)
             {
-                return productList.Take(6).ToList();
+                var clusterId = await _redisService.GetClusterDataAsync(product.Id);
+                if (clusterId.HasValue)
+                {
+                    productClusters.Add((product, clusterId.Value));
+                }
             }
 
-            var mlContext = new MLContext();
-            // get data fr mlData
-            var dataView = mlContext.Data.LoadFromEnumerable(mlData);
-
-            var pipeline = mlContext.Transforms
-                .Concatenate("Features", nameof(ProductFeatureMLDto.Price), nameof(ProductFeatureMLDto.OrderCount), nameof(ProductFeatureMLDto.SoldQuantity))
-                .Append(mlContext.Transforms.NormalizeMinMax("Features"))
-                .Append(mlContext.Clustering.Trainers.KMeans("Features", numberOfClusters: 3));
-
-            // train k-mean model with 3 cluster
-            var model = pipeline.Fit(dataView);
-            // prediction cluster 
-            var predictionEngine = mlContext.Model.CreatePredictionEngine<ProductFeatureMLDto, ProductPrediction>(model);
-
-            // cluster product
-            var predictions = mlData.Select((data, index) => new
-            {
-                Product = productList[index],
-                Prediction = predictionEngine.Predict(data)
-            }).ToList();
-
-            // group product based cluster
-            var clusterStats = predictions
-                .GroupBy(p => p.Prediction.ClusterId)
+            // group product
+            var clusterStats = productClusters
+                .GroupBy(p => p.ClusterId)
                 .Select(g => new
                 {
                     ClusterId = g.Key,
@@ -64,12 +44,44 @@ namespace WavesOfFoodDemo.Server.Services.Implements
                     Products = g.Select(p => p.Product).ToList()
                 });
 
-            var featuredProducts = clusterStats.OrderByDescending(c => c.AvgSoldQuantity)
-                                               .First().Products
-                                               .Take(6)
-                                               .ToList();
+            var featuredProducts = clusterStats
+                .OrderByDescending(c => c.AvgSoldQuantity)
+                .FirstOrDefault()?.Products
+                .Take(6)
+                .ToList() ?? new List<ProductFeatureDto>();
 
             return featuredProducts;
         }
+
+        // train K-means
+        public async Task UpdateClustersAsync()
+        {
+            var productList = await _productInfoService.GetProductFeaturesAsync();
+
+            var mlData = productList.Select(p => new ProductFeatureMLDto
+            {
+                Price = (float)p.Price,
+                OrderCount = p.OrderCount,
+                SoldQuantity = p.SoldQuantity
+            }).ToList();
+
+            var mlContext = new MLContext();
+            var dataView = mlContext.Data.LoadFromEnumerable(mlData);
+
+            var pipeline = mlContext.Transforms
+                .Concatenate("Features", nameof(ProductFeatureMLDto.Price), nameof(ProductFeatureMLDto.OrderCount), nameof(ProductFeatureMLDto.SoldQuantity))
+                .Append(mlContext.Transforms.NormalizeMinMax("Features"))
+                .Append(mlContext.Clustering.Trainers.KMeans("Features", numberOfClusters: 3));
+
+            var model = pipeline.Fit(dataView);
+            var predictionEngine = mlContext.Model.CreatePredictionEngine<ProductFeatureMLDto, ProductPrediction>(model);
+
+            foreach (var (data, index) in mlData.Select((data, index) => (data, index)))
+            {
+                var prediction = predictionEngine.Predict(data);
+                await _redisService.SetClusterDataAsync(productList[index].Id, (int)prediction.ClusterId);
+            }
+        }
+
     }
 }
