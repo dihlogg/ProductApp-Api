@@ -10,8 +10,8 @@ namespace WavesOfFoodDemo.Server.Services.Implements
         private readonly IConnectionMultiplexer _secondaryRedis;
 
         public RedisService(
-            IConnectionMultiplexer defaultRedis, // Instance 6379
-            IConnectionMultiplexer secondaryRedis) // Instance 6380
+            IConnectionMultiplexer defaultRedis,  // Instance 6379
+            [FromKeyedServices("SecondaryRedis")] IConnectionMultiplexer secondaryRedis) // Instance 6380
         {
             _defaultDatabase = defaultRedis.GetDatabase();
             _secondaryDatabase = secondaryRedis.GetDatabase();

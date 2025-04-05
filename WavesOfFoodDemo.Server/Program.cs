@@ -1,4 +1,4 @@
-using StackExchange.Redis;
+﻿using StackExchange.Redis;
 using WavesOfFoodDemo.Server.AppSettings;
 using WavesOfFoodDemo.Server.DataContext;
 using WavesOfFoodDemo.Server.Hubs;
@@ -15,22 +15,13 @@ var redisConfig = builder.Configuration.GetSection("Redis:Instances");
 var defaultRedisConnString = redisConfig["Default"];
 var secondaryRedisConnString = redisConfig["Secondary"];
 
-// Register Redis connections
+// register defaut 6379 Redis connections
 builder.Services.AddSingleton<IConnectionMultiplexer>(sp =>
     ConnectionMultiplexer.Connect(defaultRedisConnString));
 
-builder.Services.AddSingleton<IConnectionMultiplexer>(sp =>
-    ConnectionMultiplexer.Connect(secondaryRedisConnString));
-
-// Register named instances
-builder.Services.AddSingleton<Func<string, IConnectionMultiplexer>>(sp => key =>
-{
-    return key switch
-    {
-        "SecondaryRedis" => sp.GetRequiredService<IConnectionMultiplexer>(),
-        _ => sp.GetRequiredService<IConnectionMultiplexer>()
-    };
-});
+// register secondary 6380 Redis connections w KeyedService
+builder.Services.AddKeyedSingleton<IConnectionMultiplexer>("SecondaryRedis",
+    (sp, _) => ConnectionMultiplexer.Connect(secondaryRedisConnString));
 
 // config background service
 builder.Services.AddHostedService<MLBackgroundService>();
