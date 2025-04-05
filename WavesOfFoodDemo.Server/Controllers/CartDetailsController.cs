@@ -1,12 +1,7 @@
 ﻿using System.Text.Json;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Caching.StackExchangeRedis;
-using Newtonsoft.Json.Linq;
-using WavesOfFoodDemo.Server.AppSettings;
 using WavesOfFoodDemo.Server.Dtos;
-using WavesOfFoodDemo.Server.Dtos.CartDetails;
 using WavesOfFoodDemo.Server.Hubs;
 using WavesOfFoodDemo.Server.Services;
 
@@ -114,7 +109,7 @@ namespace WavesOfFoodDemo.Server.Controllers
             }
         }
 
-        [HttpPost("PostCartDetailsRedis")]
+        [HttpPost("Redis/PostCartDetailsRedis")]
         public async Task<IActionResult> PostCartDetailsRedis([FromBody] CartDetailsRequestDto request)
         {
             try
