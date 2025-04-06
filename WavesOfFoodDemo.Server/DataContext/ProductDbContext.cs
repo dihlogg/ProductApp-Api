@@ -1,12 +1,7 @@
-﻿using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 using System.Data;
 using System.Diagnostics;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
 using WavesOfFoodDemo.Server.AppSettings;
 using WavesOfFoodDemo.Server.Entities;
 
@@ -35,6 +30,7 @@ public class ProductDbContext : DbContext
     public virtual DbSet<CartDetails> CartDetails { get; set; }
     public virtual DbSet<Category> Categories { get; set; }
     public virtual DbSet<ProductImage> ProductImages { get; set; }
+    public virtual DbSet<ProductInfoHistory> ProductInfoHistorys { get; set; }
 
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)

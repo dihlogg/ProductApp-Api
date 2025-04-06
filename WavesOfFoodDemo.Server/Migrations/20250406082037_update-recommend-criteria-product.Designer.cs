@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using WavesOfFoodDemo.Server.DataContext;
@@ -11,9 +12,11 @@ using WavesOfFoodDemo.Server.DataContext;
 namespace WavesOfFoodDemo.Server.Migrations
 {
     [DbContext(typeof(ProductDbContext))]
-    partial class ProductDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250406082037_update-recommend-criteria-product")]
+    partial class updaterecommendcriteriaproduct
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -40,9 +43,6 @@ namespace WavesOfFoodDemo.Server.Migrations
                     b.Property<Guid>("ProductId")
                         .HasColumnType("uuid");
 
-                    b.Property<Guid?>("ProductInfoHistoryId")
-                        .HasColumnType("uuid");
-
                     b.Property<int>("Quantity")
                         .HasColumnType("integer");
 
@@ -60,8 +60,6 @@ namespace WavesOfFoodDemo.Server.Migrations
                     b.HasIndex("CartId");
 
                     b.HasIndex("ProductId");
-
-                    b.HasIndex("ProductInfoHistoryId");
 
                     b.ToTable("CartDetails");
                 });
@@ -150,9 +148,6 @@ namespace WavesOfFoodDemo.Server.Migrations
                     b.Property<string>("ImageUrl")
                         .HasColumnType("text");
 
-                    b.Property<Guid?>("ProductInfoHistoryId")
-                        .HasColumnType("uuid");
-
                     b.Property<Guid?>("ProductInfoId")
                         .HasColumnType("uuid");
 
@@ -163,8 +158,6 @@ namespace WavesOfFoodDemo.Server.Migrations
                         .HasColumnType("timestamp with time zone");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("ProductInfoHistoryId");
 
                     b.HasIndex("ProductInfoId");
 
@@ -232,67 +225,6 @@ namespace WavesOfFoodDemo.Server.Migrations
                     b.ToTable("ProductInfos", (string)null);
                 });
 
-            modelBuilder.Entity("WavesOfFoodDemo.Server.Entities.ProductInfoHistory", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
-
-                    b.Property<string>("BateryCapacity")
-                        .HasColumnType("text");
-
-                    b.Property<Guid?>("CategoryId")
-                        .HasColumnType("uuid");
-
-                    b.Property<string>("ConnectType")
-                        .HasColumnType("text");
-
-                    b.Property<string>("CpuType")
-                        .HasColumnType("text");
-
-                    b.Property<Guid?>("CreateBy")
-                        .HasColumnType("uuid");
-
-                    b.Property<DateTime>("CreateDate")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<string>("Description")
-                        .HasColumnType("text");
-
-                    b.Property<string>("DetailsType")
-                        .HasColumnType("text");
-
-                    b.Property<string>("Name")
-                        .HasColumnType("text");
-
-                    b.Property<decimal>("Price")
-                        .HasColumnType("numeric");
-
-                    b.Property<int?>("Quantity")
-                        .HasColumnType("integer");
-
-                    b.Property<string>("RamType")
-                        .HasColumnType("text");
-
-                    b.Property<string>("RomType")
-                        .HasColumnType("text");
-
-                    b.Property<string>("ScreenSize")
-                        .HasColumnType("text");
-
-                    b.Property<Guid?>("UpdateBy")
-                        .HasColumnType("uuid");
-
-                    b.Property<DateTime>("UpdateDate")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("CategoryId");
-
-                    b.ToTable("ProductInfoHistorys");
-                });
-
             modelBuilder.Entity("WavesOfFoodDemo.Server.Entities.UserInfo", b =>
                 {
                     b.Property<Guid>("Id")
@@ -345,10 +277,6 @@ namespace WavesOfFoodDemo.Server.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("WavesOfFoodDemo.Server.Entities.ProductInfoHistory", null)
-                        .WithMany("CartDetails")
-                        .HasForeignKey("ProductInfoHistoryId");
-
                     b.Navigation("CartInfo");
 
                     b.Navigation("ProductInfo");
@@ -367,10 +295,6 @@ namespace WavesOfFoodDemo.Server.Migrations
 
             modelBuilder.Entity("WavesOfFoodDemo.Server.Entities.ProductImage", b =>
                 {
-                    b.HasOne("WavesOfFoodDemo.Server.Entities.ProductInfoHistory", null)
-                        .WithMany("ProductImages")
-                        .HasForeignKey("ProductInfoHistoryId");
-
                     b.HasOne("WavesOfFoodDemo.Server.Entities.ProductInfo", "ProductInfos")
                         .WithMany("ProductImages")
                         .HasForeignKey("ProductInfoId")
@@ -388,15 +312,6 @@ namespace WavesOfFoodDemo.Server.Migrations
                     b.Navigation("Categories");
                 });
 
-            modelBuilder.Entity("WavesOfFoodDemo.Server.Entities.ProductInfoHistory", b =>
-                {
-                    b.HasOne("WavesOfFoodDemo.Server.Entities.Category", "Categories")
-                        .WithMany()
-                        .HasForeignKey("CategoryId");
-
-                    b.Navigation("Categories");
-                });
-
             modelBuilder.Entity("WavesOfFoodDemo.Server.Entities.CartInfo", b =>
                 {
                     b.Navigation("CartDetails");
@@ -408,13 +323,6 @@ namespace WavesOfFoodDemo.Server.Migrations
                 });
 
             modelBuilder.Entity("WavesOfFoodDemo.Server.Entities.ProductInfo", b =>
-                {
-                    b.Navigation("CartDetails");
-
-                    b.Navigation("ProductImages");
-                });
-
-            modelBuilder.Entity("WavesOfFoodDemo.Server.Entities.ProductInfoHistory", b =>
                 {
                     b.Navigation("CartDetails");
 
