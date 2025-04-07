@@ -12,17 +12,20 @@ namespace WavesOfFoodDemo.Server.Controllers
         private readonly IProductInfoService _productInfoService;
         private readonly IMLService _mlService;
         private readonly IRedisService _redisService;
+        private readonly IProductInfoHistoryService _productInfoHistoryService;
 
         public ProductInfoController(
             ILogger<ProductInfoController> logger,
             IProductInfoService productInfoService,
             IMLService mlService,
-            IRedisService redisService)
+            IRedisService redisService,
+            IProductInfoHistoryService productInfoHistoryService)
         {
             _logger = logger;
             _productInfoService = productInfoService;
             _mlService = mlService;
             _redisService = redisService;
+            _productInfoHistoryService = productInfoHistoryService;
         }
 
         [HttpGet("GetProductInfos")]
@@ -117,6 +120,7 @@ namespace WavesOfFoodDemo.Server.Controllers
                 return BadRequest(ex.Message);
             }
         }
+
         [HttpGet("GetProductDetailsById/{id}")]
         public async Task<IActionResult> GetProductDetailsById(Guid id)
         {
@@ -134,6 +138,7 @@ namespace WavesOfFoodDemo.Server.Controllers
                 return BadRequest(ex.Message);
             }
         }
+
         [HttpGet("GetProductsByCategoryId/{categoryId}")]
         public async Task<IActionResult> GetProductsByCategoryId(Guid categoryId)
         {
@@ -151,12 +156,14 @@ namespace WavesOfFoodDemo.Server.Controllers
                 return BadRequest(ex.Message);
             }
         }
+
         [HttpPost("UpdateClusters")]
         public async Task<IActionResult> UpdateClusters()
         {
             await _mlService.UpdateClustersAsync();
             return Ok(new { message = "Clusters updated successfully" });
         }
+
         [HttpGet("GetCluster/{productId}")]
         public async Task<IActionResult> GetCluster(Guid productId)
         {
@@ -168,43 +175,6 @@ namespace WavesOfFoodDemo.Server.Controllers
                     return NotFound();
                 }
                 return Ok(new { productId, data });
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(ex.Message);
-            }
-        }
-        [HttpGet("GetProductsByCluster/{clusterId}")]
-        public async Task<IActionResult> GetProductsByCluster(int clusterId)
-        {
-            var allProductKeys = await _redisService.GetAllKeysAsync("cluster:*");
-
-            var matchingProducts = new List<Guid>();
-
-            foreach (var key in allProductKeys)
-            {
-                string productIdString = key.Replace("cluster:", "");
-
-                if (Guid.TryParse(productIdString, out Guid productId))
-                {
-                    int? storedClusterId = await _redisService.GetClusterDataAsync(productId);
-
-                    if (storedClusterId.HasValue && storedClusterId.Value == clusterId)
-                    {
-                        matchingProducts.Add(productId);
-                    }
-                }
-            }
-
-            return Ok(new { clusterId, products = matchingProducts });
-        }
-        [HttpGet("GetFeaturedProducts")]
-        public async Task<IActionResult> GetFeaturedProducts()
-        {
-            try
-            {
-                var data = await _mlService.GetFeaturedProductsAsync();
-                return Ok(data);
             }
             catch (Exception ex)
             {

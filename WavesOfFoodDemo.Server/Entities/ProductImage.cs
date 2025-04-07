@@ -5,6 +5,8 @@
         public Guid? ProductInfoId { get; set; }
         public ProductInfo? ProductInfos { get; set; }
         public string? ImageUrl { get; set; }
-        public int DisplayOrder {  get; set; }
+        public int DisplayOrder { get; set; }
+        public Guid? ProductInfoHistoryId { get; set; }
+        public ProductInfoHistory? ProductInfoHistories { get; set; }
     }
 }

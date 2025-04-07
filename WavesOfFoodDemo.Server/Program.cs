@@ -1,4 +1,5 @@
-﻿using StackExchange.Redis;
+﻿using System.Text.Json.Serialization;
+using StackExchange.Redis;
 using WavesOfFoodDemo.Server.AppSettings;
 using WavesOfFoodDemo.Server.DataContext;
 using WavesOfFoodDemo.Server.Hubs;
@@ -25,6 +26,7 @@ builder.Services.AddKeyedSingleton<IConnectionMultiplexer>("SecondaryRedis",
 
 // config background service
 builder.Services.AddHostedService<MLBackgroundService>();
+builder.Services.AddHostedService<DailyProductBackgroundService>();
 
 // Add services to the container.
 builder.Services.AddCors(options =>
@@ -38,8 +40,14 @@ builder.Services.AddCors(options =>
     });
 });
 
+builder.Services.AddControllers()
+    .AddJsonOptions(opt =>
+    {
+        opt.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
+    });
+
 builder.Services.AddApplicationServicesExtension();
-builder.Services.AddControllers();
+//builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddDbContext<ProductDbContext>();
