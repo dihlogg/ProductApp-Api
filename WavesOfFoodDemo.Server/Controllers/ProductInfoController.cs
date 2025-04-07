@@ -164,17 +164,17 @@ namespace WavesOfFoodDemo.Server.Controllers
             return Ok(new { message = "Clusters updated successfully" });
         }
 
-        [HttpGet("GetCluster/{productId}")]
-        public async Task<IActionResult> GetCluster(Guid productId)
+        [HttpGet("GetSimilarProducts/{productId}")]
+        public async Task<IActionResult> GetSimilarProducts(Guid productId)
         {
             try
             {
-                var data = await _redisService.GetClusterDataAsync(productId);
+                var data = await _mlService.GetSimilarProductsAsync(productId);
                 if (data == null)
                 {
                     return NotFound();
                 }
-                return Ok(new { productId, data });
+                return Ok(data);
             }
             catch (Exception ex)
             {
