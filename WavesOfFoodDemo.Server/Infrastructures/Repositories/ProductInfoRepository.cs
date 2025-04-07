@@ -59,6 +59,13 @@ public class ProductInfoRepository : GenericRepository<ProductInfo>, IProductInf
                 Description = p.Description,
                 Quantity = p.Quantity,
                 CategoryId = p.CategoryId,
+                CpuType = p.CpuType,
+                RamType = p.RamType,
+                RomType = p.RomType,
+                ScreenSize = p.ScreenSize,
+                BateryCapacity = p.BateryCapacity,
+                DetailsType = p.DetailsType,
+                ConnectType = p.ConnectType,
                 ProductImages = p.ProductImages.OrderBy(s => s.DisplayOrder).Select(img => new ProductImageCreateDto
                 {
                     ImageUrl = img.ImageUrl
@@ -106,6 +113,13 @@ public class ProductInfoRepository : GenericRepository<ProductInfo>, IProductInf
                 Description = p.Description,
                 Quantity = p.Quantity,
                 CategoryId = p.CategoryId,
+                CpuType = p.CpuType,
+                RamType = p.RamType,
+                RomType = p.RomType,
+                ScreenSize = p.ScreenSize,
+                BateryCapacity = p.BateryCapacity,
+                DetailsType = p.DetailsType,
+                ConnectType = p.ConnectType,
                 ProductImages = p.ProductImages.OrderBy(s => s.DisplayOrder).Select(img => new ProductImageCreateDto
                 {
                     ImageUrl = img.ImageUrl
@@ -126,6 +140,13 @@ public class ProductInfoRepository : GenericRepository<ProductInfo>, IProductInf
                 Description = p.Description,
                 Quantity = p.Quantity,
                 CategoryId = p.CategoryId,
+                CpuType = p.CpuType,
+                RamType = p.RamType,
+                RomType = p.RomType,
+                ScreenSize = p.ScreenSize,
+                BateryCapacity = p.BateryCapacity,
+                DetailsType = p.DetailsType,
+                ConnectType = p.ConnectType,
                 ProductImages = p.ProductImages.OrderBy(s => s.DisplayOrder).Select(img => new ProductImageCreateDto
                 {
                     ImageUrl = img.ImageUrl

@@ -50,6 +50,12 @@ public class ProductDbContext : DbContext
         .HasForeignKey(i => i.ProductInfoId)
         .OnDelete(DeleteBehavior.Cascade);
 
+        modelBuilder.Entity<ProductInfoHistory>()
+       .HasMany(p => p.ProductImages)
+       .WithOne(i => i.ProductInfoHistories)
+       .HasForeignKey(i => i.ProductInfoHistoryId)
+       .OnDelete(DeleteBehavior.Cascade);
+
         modelBuilder.Entity<UserInfo>().ToTable("UserInfos").HasKey(x => x.Id);
 
         modelBuilder.Entity<CartInfo>().ToTable("CartInfos")

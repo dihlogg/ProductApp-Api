@@ -24,5 +24,7 @@ public static class ApplicationServicesExtensions
         services.AddTransient<IProductImageService, ProductImageService>();
         services.AddTransient<IRedisService, RedisService>();
         services.AddTransient<IMLService, MLService>();
+        services.AddTransient<IProductInfoHistoryRepository, ProductInfoHistoryRepository>();
+        services.AddTransient<IProductInfoHistoryService, ProductInfoHistoryService>();
     }
 }
