@@ -38,14 +38,14 @@ namespace WavesOfFoodDemo.Server.Services.Implements
             var server = _defaultRedis.GetServer(_defaultRedis.GetEndPoints().First());
             return server.Keys(pattern: pattern).Select(k => k.ToString());
         }
-        public async Task SetClusterDataAsync(Guid productId, int clusterId)
+        public async Task SetClusterDataAsync(Guid categoryId, Guid productId, int clusterId)
         {
-            await _secondaryDatabase.StringSetAsync($"Cluster:{productId}", clusterId);
+            await _secondaryDatabase.StringSetAsync($"Cluster:{categoryId}:{productId}", clusterId);
         }
 
-        public async Task<int?> GetClusterDataAsync(Guid productId)
+        public async Task<int?> GetClusterDataAsync(Guid categoryId, Guid productId)
         {
-            var clusterId = await _secondaryDatabase.StringGetAsync($"Cluster:{productId}");
+            var clusterId = await _secondaryDatabase.StringGetAsync($"Cluster:{categoryId}:{productId}");
             return clusterId.HasValue ? (int)clusterId : null;
         }
     }

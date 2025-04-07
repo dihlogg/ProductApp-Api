@@ -10,78 +10,111 @@ namespace WavesOfFoodDemo.Server.Services.Implements
         private readonly IMapper _mapper;
         private readonly IProductInfoService _productInfoService;
         private readonly IRedisService _redisService;
+        private readonly MLContext _mlContext;
 
-        public MLService(ILogger<MLService> logger, IMapper mapper, IProductInfoService productInfoService, IRedisService redisService)
+        public MLService(
+            ILogger<MLService> logger,
+            IMapper mapper,
+            IProductInfoService productInfoService,
+            IRedisService redisService)
         {
             _logger = logger;
             _mapper = mapper;
             _productInfoService = productInfoService;
             _redisService = redisService;
+            _mlContext = new MLContext();
         }
-        public async Task<List<ProductFeatureDto>> GetFeaturedProductsAsync()
+
+        public async Task<List<ProductFeatureDto>> GetSimilarProductsAsync(Guid productId)
         {
-            var productList = await _productInfoService.GetProductFeaturesAsync();
+            var allProducts = await _productInfoService.GetProductFeaturesAsync();
+            var targetProduct = allProducts.FirstOrDefault(p => p.Id == productId);
 
-            // get clusterId fr redis 6380
-            var productClusters = new List<(ProductFeatureDto Product, int ClusterId)>();
+            if (targetProduct == null || targetProduct.CategoryId == null)
+                return new List<ProductFeatureDto>();
 
-            foreach (var product in productList)
+            var sameCategoryProducts = allProducts
+                .Where(p => p.CategoryId == targetProduct.CategoryId && p.Id != productId)
+                .ToList();
+
+            var clusterId = await _redisService.GetClusterDataAsync(targetProduct.CategoryId.Value, targetProduct.Id);
+
+            if (clusterId == null)
+                return new List<ProductFeatureDto>();
+
+            var similarProducts = new List<ProductFeatureDto>();
+            similarProducts.Add(targetProduct);
+            foreach (var product in sameCategoryProducts)
             {
-                var clusterId = await _redisService.GetClusterDataAsync(product.Id);
-                if (clusterId.HasValue)
+                var otherClusterId = await _redisService.GetClusterDataAsync(product.CategoryId.Value, product.Id);
+                if (otherClusterId == clusterId)
                 {
-                    productClusters.Add((product, clusterId.Value));
+                    similarProducts.Add(product);
                 }
             }
-
-            // group product
-            var clusterStats = productClusters
-                .GroupBy(p => p.ClusterId)
-                .Select(g => new
-                {
-                    ClusterId = g.Key,
-                    AvgSoldQuantity = g.Average(p => p.Product.SoldQuantity),
-                    Products = g.Select(p => p.Product).ToList()
-                });
-
-            var featuredProducts = clusterStats
-                .OrderByDescending(c => c.AvgSoldQuantity)
-                .FirstOrDefault()?.Products
-                .Take(6)
-                .ToList() ?? new List<ProductFeatureDto>();
-
-            return featuredProducts;
+            return similarProducts.Take(4).ToList();
         }
 
-        // train K-means
+
         public async Task UpdateClustersAsync()
         {
-            var productList = await _productInfoService.GetProductFeaturesAsync();
+            var allProducts = await _productInfoService.GetProductFeaturesAsync();
+            var productsByCategory = allProducts
+                .Where(p => p.CategoryId.HasValue)
+                .GroupBy(p => p.CategoryId.Value);
 
-            var mlData = productList.Select(p => new ProductFeatureMLDto
+            foreach (var group in productsByCategory)
             {
-                Price = (float)p.Price,
-                OrderCount = p.OrderCount,
-                SoldQuantity = p.SoldQuantity
-            }).ToList();
+                var categoryId = group.Key;
+                var products = group.ToList();
 
-            var mlContext = new MLContext();
-            var dataView = mlContext.Data.LoadFromEnumerable(mlData);
+                var mlData = products.Select(p => new ProductFeatureMLDto
+                {
+                    Price = (float)p.Price * 3,
+                    CpuType = p.CpuType ?? "",
+                    RamType = p.RamType ?? "",
+                    RomType = p.RomType ?? "",
+                    ScreenSize = p.ScreenSize ?? "",
+                    BateryCapacity = p.BateryCapacity ?? "",
+                    DetailsType = p.DetailsType ?? "",
+                    ConnectType = p.ConnectType ?? ""
+                }).ToList();
 
-            var pipeline = mlContext.Transforms
-                .Concatenate("Features", nameof(ProductFeatureMLDto.Price), nameof(ProductFeatureMLDto.OrderCount), nameof(ProductFeatureMLDto.SoldQuantity))
-                .Append(mlContext.Transforms.NormalizeMinMax("Features"))
-                .Append(mlContext.Clustering.Trainers.KMeans("Features", numberOfClusters: 3));
+                var dataView = _mlContext.Data.LoadFromEnumerable(mlData);
 
-            var model = pipeline.Fit(dataView);
-            var predictionEngine = mlContext.Model.CreatePredictionEngine<ProductFeatureMLDto, ProductPrediction>(model);
+                var pipeline = _mlContext.Transforms.Categorical.OneHotEncoding(new[]
+                {
+                new InputOutputColumnPair(nameof(ProductFeatureMLDto.CpuType)),
+                new InputOutputColumnPair(nameof(ProductFeatureMLDto.RamType)),
+                new InputOutputColumnPair(nameof(ProductFeatureMLDto.RomType)),
+                new InputOutputColumnPair(nameof(ProductFeatureMLDto.ScreenSize)),
+                new InputOutputColumnPair(nameof(ProductFeatureMLDto.BateryCapacity)),
+                new InputOutputColumnPair(nameof(ProductFeatureMLDto.DetailsType)),
+                new InputOutputColumnPair(nameof(ProductFeatureMLDto.ConnectType))
+            })
+                .Append(_mlContext.Transforms.Concatenate("Features",
+                    nameof(ProductFeatureMLDto.Price),
+                    nameof(ProductFeatureMLDto.CpuType),
+                    nameof(ProductFeatureMLDto.RamType),
+                    nameof(ProductFeatureMLDto.RomType),
+                    nameof(ProductFeatureMLDto.ScreenSize),
+                    nameof(ProductFeatureMLDto.BateryCapacity),
+                    nameof(ProductFeatureMLDto.DetailsType),
+                    nameof(ProductFeatureMLDto.ConnectType)
+                ))
+                .Append(_mlContext.Transforms.NormalizeMinMax("Features"))
+                .Append(_mlContext.Clustering.Trainers.KMeans("Features", numberOfClusters: 3));
 
-            foreach (var (data, index) in mlData.Select((data, index) => (data, index)))
-            {
-                var prediction = predictionEngine.Predict(data);
-                await _redisService.SetClusterDataAsync(productList[index].Id, (int)prediction.ClusterId);
+                var model = pipeline.Fit(dataView);
+                var predictionEngine = _mlContext.Model.CreatePredictionEngine<ProductFeatureMLDto, ProductPrediction>(model);
+
+                for (int i = 0; i < products.Count; i++)
+                {
+                    var prediction = predictionEngine.Predict(mlData[i]);
+                    await _redisService.SetClusterDataAsync(categoryId, products[i].Id, (int)prediction.ClusterId);
+                }
             }
         }
-
     }
+
 }

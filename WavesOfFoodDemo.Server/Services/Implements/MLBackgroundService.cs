@@ -23,7 +23,7 @@
                 }
 
                 _logger.LogInformation("Cluster data updated successfully.");
-                await Task.Delay(TimeSpan.FromHours(12), stoppingToken);
+                await Task.Delay(TimeSpan.FromDays(7), stoppingToken);
             }
         }
     }

@@ -162,28 +162,29 @@ public class ProductInfoRepository : GenericRepository<ProductInfo>, IProductInf
     public async Task<List<ProductFeatureDto>> GetProductFeaturesAsync()
     {
         var productList = await _productDbContext.ProductInfos
-          .Where(p => p.CartDetails.Any(cd => cd.CartInfo.Status == "Completed"))
-          .Select(p => new ProductFeatureDto
-          {
-              Id = p.Id,
-              Name = p.Name,
-              Price = p.Price,
-              Description = p.Description,
-              Quantity = p.Quantity,
-              CategoryId = p.CategoryId,
-              ProductImages = p.ProductImages.OrderBy(s => s.DisplayOrder)
-                  .Select(img => new ProductImageCreateDto { ImageUrl = img.ImageUrl })
-                  .ToList(),
-              OrderCount = p.CartDetails
-                  .Where(cd => cd.CartInfo.Status == "Completed")
-                  .Select(cd => cd.CartInfo)
-                  .Distinct()
-                  .Count(),
-              SoldQuantity = p.CartDetails
-                  .Where(cd => cd.CartInfo.Status == "Completed")
-                  .Sum(cd => (int?)cd.Quantity) ?? 0
-          })
-          .ToListAsync();
+        .Select(p => new ProductFeatureDto
+        {
+            Id = p.Id,
+            Name = p.Name,
+            Price = p.Price,
+            Description = p.Description,
+            Quantity = p.Quantity,
+            CategoryId = p.CategoryId,
+            ProductImages = p.ProductImages
+                .OrderBy(s => s.DisplayOrder)
+                .Select(img => new ProductImageCreateDto { ImageUrl = img.ImageUrl })
+                .ToList(),
+
+            // recommend criteria
+            CpuType = p.CpuType,
+            RamType = p.RamType,
+            RomType = p.RomType,
+            ScreenSize = p.ScreenSize,
+            BateryCapacity = p.BateryCapacity,
+            DetailsType = p.DetailsType,
+            ConnectType = p.ConnectType,
+        })
+        .ToListAsync();
 
         return productList;
     }

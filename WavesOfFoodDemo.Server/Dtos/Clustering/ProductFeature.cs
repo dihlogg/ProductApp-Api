@@ -14,14 +14,27 @@ namespace WavesOfFoodDemo.Server.Dtos.Clustering
         public int? Quantity { get; set; }
         public Guid? CategoryId { get; set; }
         public List<ProductImageCreateDto> ProductImages { get; set; } = new List<ProductImageCreateDto>();
-        public float OrderCount { get; set; }
-        public float SoldQuantity { get; set; }
+
+        // recommend criteria
+        public string? CpuType { get; set; }
+        public string? RamType { get; set; }
+        public string? RomType { get; set; }
+        public string? ScreenSize { get; set; }
+        public string? BateryCapacity { get; set; }
+        public string? DetailsType { get; set; }
+        public string? ConnectType { get; set; }
     }
     public class ProductFeatureMLDto
     {
         public float Price { get; set; }
-        public float OrderCount { get; set; }
-        public float SoldQuantity { get; set; }
+        // recommend criteria
+        public string? CpuType { get; set; }
+        public string? RamType { get; set; }
+        public string? RomType { get; set; }
+        public string? ScreenSize { get; set; }
+        public string? BateryCapacity { get; set; }
+        public string? DetailsType { get; set; }
+        public string? ConnectType { get; set; }
     }
     public class ProductPrediction
     {

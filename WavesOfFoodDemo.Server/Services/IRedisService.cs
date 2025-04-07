@@ -6,7 +6,7 @@
         Task<string> GetValueAsync(string key);
         Task<bool> DeleteKeyAsync(string key);
         Task<IEnumerable<string>> GetAllKeysAsync(string pattern);
-        Task SetClusterDataAsync(Guid productId, int clusterId);
-        Task<int?> GetClusterDataAsync(Guid productId);
+        Task SetClusterDataAsync(Guid categoryId, Guid productId, int clusterId);
+        Task<int?> GetClusterDataAsync(Guid categoryId, Guid productId);
     }
 }
