@@ -170,10 +170,10 @@ public class ProductInfoRepository : GenericRepository<ProductInfo>, IProductInf
             Description = p.Description,
             Quantity = p.Quantity,
             CategoryId = p.CategoryId,
-            ProductImages = p.ProductImages
-                .OrderBy(s => s.DisplayOrder)
-                .Select(img => new ProductImageCreateDto { ImageUrl = img.ImageUrl })
-                .ToList(),
+            ProductImages = p.ProductImages.OrderBy(s => s.DisplayOrder).Select(img => new ProductImageCreateDto
+            {
+                ImageUrl = img.ImageUrl
+            }).ToList(),
 
             // recommend criteria
             CpuType = p.CpuType,

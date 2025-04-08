@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using WavesOfFoodDemo.Server.DataContext;
@@ -11,9 +12,11 @@ using WavesOfFoodDemo.Server.DataContext;
 namespace WavesOfFoodDemo.Server.Migrations
 {
     [DbContext(typeof(ProductDbContext))]
-    partial class ProductDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250408084307_add-productId-to-table-product-info-history")]
+    partial class addproductIdtotableproductinfohistory
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -63,7 +66,7 @@ namespace WavesOfFoodDemo.Server.Migrations
 
                     b.HasIndex("ProductInfoHistoryId");
 
-                    b.ToTable("CartDetails", (string)null);
+                    b.ToTable("CartDetails");
                 });
 
             modelBuilder.Entity("WavesOfFoodDemo.Server.Entities.CartInfo", b =>
@@ -293,7 +296,7 @@ namespace WavesOfFoodDemo.Server.Migrations
 
                     b.HasIndex("CategoryId");
 
-                    b.ToTable("ProductInfoHistorys", (string)null);
+                    b.ToTable("ProductInfoHistorys");
                 });
 
             modelBuilder.Entity("WavesOfFoodDemo.Server.Entities.UserInfo", b =>

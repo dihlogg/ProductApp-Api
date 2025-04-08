@@ -43,7 +43,7 @@ namespace WavesOfFoodDemo.Server
             CreateMap<CategoryDto, Category>().ReverseMap()
                 .ForAllMembers(opt => opt.Condition((src, dst, srcMember) => srcMember != null));
 
-            CreateMap<ProductInfoCreateDto, ProductInfoHistory>().ReverseMap()
+            CreateMap<ProductInfoHistoryCreateDto, ProductInfoHistory>().ReverseMap()
               .ForAllMembers(opt => opt.Condition((src, dst, srcMember) => srcMember != null));
             CreateMap<ProductInfoHistory, ProductInfoHistoryDto>().ReverseMap()
                 .ForAllMembers(opt => opt.Condition((src, dst, srcMember) => srcMember != null));

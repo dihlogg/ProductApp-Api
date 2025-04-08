@@ -6,5 +6,4 @@ public interface IProductInfoHistoryService
 {
     Task GenerateDailyTopSellingProducts();
     Task<List<ProductInfoHistoryDto>> GetRandomTop10Products();
-
 }
