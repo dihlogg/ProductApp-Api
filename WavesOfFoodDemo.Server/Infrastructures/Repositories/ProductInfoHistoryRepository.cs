@@ -21,8 +21,8 @@ public class ProductInfoHistoryRepository : GenericRepository<ProductInfoHistory
     public async Task<List<(Guid ProductId, int QuantitySold)>> GetTopSellingProductsYesterday()
     {
         var nowVn = DateTime.UtcNow.AddHours(7);             // giờ hiện tại theo giờ Việt Nam
-        var todayVn = nowVn.Date;                             // 2025-04-07 00:00:00 VN
-        var yesterdayVn = todayVn.AddDays(-1);                // 2025-04-06 00:00:00 VN
+        var todayVn = nowVn.Date;                             // 2025-04-08 00:00:00 VN
+        var yesterdayVn = todayVn.AddDays(-7);                // 2025-04-01 00:00:00 VN
 
         var startUtc = yesterdayVn.AddHours(-7);              // 2025-04-05 17:00:00 UTC
         var endUtc = todayVn.AddHours(-7);                    // 2025-04-06 17:00:00 UTC
@@ -68,10 +68,13 @@ public class ProductInfoHistoryRepository : GenericRepository<ProductInfoHistory
                 BateryCapacity = p.BateryCapacity,
                 DetailsType = p.DetailsType,
                 ConnectType = p.ConnectType,
-                ProductImages = p.ProductImages.OrderBy(s => s.DisplayOrder).Select(img => new ProductImageCreateDto
+                ProductImages = p.ProductImages
+                .OrderBy(s => s.DisplayOrder)
+                .Select(img => new ProductImageCreateDto
                 {
                     ImageUrl = img.ImageUrl
-                }).ToList(),
+                })
+                .ToList()
             })
             .ToListAsync();
     }

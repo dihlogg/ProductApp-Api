@@ -1,15 +1,13 @@
-﻿namespace WavesOfFoodDemo.Server.Entities
+﻿namespace WavesOfFoodDemo.Server.Dtos
 {
-    public class ProductInfoHistory : BaseEntities
+    public class ProductInfoHistoryCreateDto
     {
         public string? Name { get; set; }
         public decimal Price { get; set; }
         public string? Description { get; set; }
         public int? Quantity { get; set; }
         public Guid? CategoryId { get; set; }
-        public Category? Categories { get; set; }
-        public IList<CartDetails> CartDetails { get; set; }
-        public ICollection<ProductImage> ProductImages { get; set; }
+        public List<ProductImageCreateDto> ProductImages { get; set; } = new List<ProductImageCreateDto>();
         public Guid ProductId { get; set; }
 
         // recommend criteria

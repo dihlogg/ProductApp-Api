@@ -27,11 +27,10 @@ namespace WavesOfFoodDemo.Server.Services.Implements
 
             var historyRecords = products.Select(p =>
             {
-                var newHistoryId = Guid.NewGuid();
-
                 var history = new ProductInfoHistory
                 {
-                    Id = newHistoryId,
+                    Id = p.Id,
+                    ProductId = p.Id,
                     Name = p.Name,
                     Price = p.Price,
                     Description = p.Description,
