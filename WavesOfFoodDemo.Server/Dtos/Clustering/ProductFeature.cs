@@ -35,6 +35,7 @@ namespace WavesOfFoodDemo.Server.Dtos.Clustering
         public string? BateryCapacity { get; set; }
         public string? DetailsType { get; set; }
         public string? ConnectType { get; set; }
+        public int PriceLevel { get; set; }
     }
     public class ProductPrediction
     {
