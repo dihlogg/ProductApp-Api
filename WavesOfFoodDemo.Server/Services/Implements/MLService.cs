@@ -70,7 +70,7 @@ namespace WavesOfFoodDemo.Server.Services.Implements
 
                 var mlData = products.Select(p => new ProductFeatureMLDto
                 {
-                    Price = (float)p.Price * 3,
+                    Price = (float)p.Price * 100,
                     CpuType = p.CpuType ?? "",
                     RamType = p.RamType ?? "",
                     RomType = p.RomType ?? "",
