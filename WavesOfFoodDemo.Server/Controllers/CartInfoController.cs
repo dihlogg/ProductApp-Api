@@ -34,8 +34,8 @@ namespace WavesOfFoodDemo.Server.Controllers
             }
         }
 
-        [HttpGet("GetTransactions/{userId}")]
-        public async Task<IActionResult> GetTransactions(Guid userId)
+        [HttpGet("GetTransactionsByUserId")]
+        public async Task<IActionResult> GetTransactions([FromQuery] Guid userId, [FromQuery] string status)
         {
             try
             {
@@ -43,7 +43,7 @@ namespace WavesOfFoodDemo.Server.Controllers
                 {
                     return NotFound("User not found");
                 }
-                var data = await _cartInfoService.GetTransactions(userId);
+                var data = await _cartInfoService.GetTransactions(userId, status);
                 return Ok(data);
             }
             catch (Exception ex)

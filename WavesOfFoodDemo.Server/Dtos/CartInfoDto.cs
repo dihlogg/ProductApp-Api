@@ -3,8 +3,6 @@
     public class CartInfoDto : CartInfoCreateDto
     {
         public Guid Id { get; set; }
-        public CartDetailsDto CartDetailsDto { get; set; } = new CartDetailsDto()
-        {
-        };
+        public string Status { get; set; }
     }
 }

@@ -1,5 +1,4 @@
 ﻿using AutoMapper;
-using System.Dynamic;
 using WavesOfFoodDemo.Server.Dtos;
 using WavesOfFoodDemo.Server.Dtos.CartDetails;
 using WavesOfFoodDemo.Server.Entities;
@@ -15,9 +14,9 @@ namespace WavesOfFoodDemo.Server.Services
         private readonly IMapper _mapper;
 
         public CartInfoService(
-            ICartInfoRepository cartInfoRepository, 
+            ICartInfoRepository cartInfoRepository,
             ILogger<CartInfoService> logger,
-            IMapper mapper, 
+            IMapper mapper,
             ICartDetailsRepository cartDetailsRepository)
         {
             _cartInfoRepository = cartInfoRepository;
@@ -44,13 +43,13 @@ namespace WavesOfFoodDemo.Server.Services
         {
             try
             {
-                var productInfo = await _cartInfoRepository.GetByIdAsync(cartInfoDto.Id);
-                if (productInfo == null)
-                {
+                var cart = await _cartInfoRepository.GetByIdAsync(cartInfoDto.Id);
+                if (cart == null)
                     return null;
-                }
-                var infoUpdate = _mapper.Map<CartInfo>(cartInfoDto);
-                var result = await _cartInfoRepository.UpdateAsync(infoUpdate);
+
+                cart.Status = cartInfoDto.Status;
+
+                var result = await _cartInfoRepository.UpdateAsync(cart);
                 return result;
             }
             catch (Exception ex)
@@ -87,7 +86,7 @@ namespace WavesOfFoodDemo.Server.Services
             }
         }
 
-        public async Task<IEnumerable<CartHistoryDto>> GetTransactions(Guid? userId = null)
+        public async Task<IEnumerable<CartHistoryDto>> GetTransactions(Guid? userId = null, string? status = null)
         {
             try
             {
@@ -97,7 +96,7 @@ namespace WavesOfFoodDemo.Server.Services
                 }
                 else
                 {
-                    return await _cartInfoRepository.GetTransactions(userId);
+                    return await _cartInfoRepository.GetTransactions(userId, status);
                 }
 
             }

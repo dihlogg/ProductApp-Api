@@ -22,7 +22,7 @@ namespace WavesOfFoodDemo.Server.Controllers
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
-            var n8nUrl = "http://localhost:5678/webhook-test/chatbot";
+            var n8nUrl = "http://localhost:5678/webhook/chatbot";
 
             var content = new StringContent(JsonConvert.SerializeObject(request), Encoding.UTF8, "application/json");
 
