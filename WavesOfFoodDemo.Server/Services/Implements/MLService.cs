@@ -61,7 +61,7 @@ namespace WavesOfFoodDemo.Server.Services.Implements
             var allProducts = await _productInfoService.GetProductFeaturesAsync();
             var productsByCategory = allProducts
                 .Where(p => p.CategoryId.HasValue)
-                .GroupBy(p => p.CategoryId.Value);
+                .GroupBy(p => p.CategoryId!.Value);
 
             foreach (var group in productsByCategory)
             {
@@ -70,7 +70,7 @@ namespace WavesOfFoodDemo.Server.Services.Implements
 
                 var mlData = products.Select(p => new ProductFeatureMLDto
                 {
-                    Price = (float)p.Price * 100,
+                    Price = (float)p.Price * 1000,
                     CpuType = p.CpuType ?? "",
                     RamType = p.RamType ?? "",
                     RomType = p.RomType ?? "",
@@ -82,6 +82,7 @@ namespace WavesOfFoodDemo.Server.Services.Implements
 
                 var dataView = _mlContext.Data.LoadFromEnumerable(mlData);
 
+                // change binary vector
                 var pipeline = _mlContext.Transforms.Categorical.OneHotEncoding(new[]
                 {
                 new InputOutputColumnPair(nameof(ProductFeatureMLDto.CpuType)),
@@ -102,8 +103,10 @@ namespace WavesOfFoodDemo.Server.Services.Implements
                     nameof(ProductFeatureMLDto.DetailsType),
                     nameof(ProductFeatureMLDto.ConnectType)
                 ))
+                // normalize vector Features to [0->1]
                 .Append(_mlContext.Transforms.NormalizeMinMax("Features"))
-                .Append(_mlContext.Clustering.Trainers.KMeans("Features", numberOfClusters: 3));
+                // train modal with k = 4
+                .Append(_mlContext.Clustering.Trainers.KMeans("Features", numberOfClusters: 4));
 
                 var model = pipeline.Fit(dataView);
                 var predictionEngine = _mlContext.Model.CreatePredictionEngine<ProductFeatureMLDto, ProductPrediction>(model);
@@ -116,5 +119,4 @@ namespace WavesOfFoodDemo.Server.Services.Implements
             }
         }
     }
-
 }
