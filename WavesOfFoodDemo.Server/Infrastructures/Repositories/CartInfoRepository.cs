@@ -60,4 +60,30 @@ public class CartInfoRepository : GenericRepository<CartInfo>, ICartInfoReposito
            .FirstOrDefaultAsync();
     }
 
+    public async Task<CartHistoryDto?> GetTransactionByIdAsync(Guid id)
+    {
+        return await _productDbContext.CartInfos
+            .Where(c => c.Id == id)
+            .Select(c => new CartHistoryDto
+            {
+                Id = c.Id,
+                Status = c.Status,
+                DateOrder = c.DateOrder.Value.AddHours(7).ToString("dd/MM/yyyy HH:mm"),
+                TotalPrice = c.CartDetails.Sum(s => s.Quantity * s.ProductInfo.Price),
+                CartDetails = c.CartDetails.Select(cd => new CartdetailHistoryDto()
+                {
+                    ProductImages = cd.ProductInfo.ProductImages
+                        .OrderBy(s => s.DisplayOrder)
+                        .Select(img => new ProductImageCreateDto
+                        {
+                            ImageUrl = img.ImageUrl
+                        })
+                        .ToList(),
+                    ProductName = cd.ProductInfo.Name,
+                    Quantity = cd.Quantity,
+                    Price = cd.ProductInfo.Price,
+                })
+            })
+            .FirstOrDefaultAsync();
+    }
 }

@@ -178,5 +178,18 @@ namespace WavesOfFoodDemo.Server.Services
                 throw;
             }
         }
+
+        public async Task<CartHistoryDto?> GetTransactionByIdAsync(Guid id)
+        {
+            try
+            {
+                return await _cartInfoRepository.GetTransactionByIdAsync(id);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex.Message);
+                throw;
+            }
+        }
     }
 }
