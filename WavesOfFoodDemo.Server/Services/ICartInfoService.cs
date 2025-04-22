@@ -12,5 +12,6 @@ public interface ICartInfoService
     Task<IEnumerable<CartHistoryDto>> GetTransactions(Guid? userId = null, string? status = null);
     Task<bool?> PostCartDetailInfo(CartDetailInfoDto cartInfoCreateDto);
     Task<bool?> UpdateStatusCartInfo(UpdateStatusCartDetailDto updateStatusCart);
+    Task<CartHistoryDto?> GetTransactionByIdAsync(Guid id);
 }
 

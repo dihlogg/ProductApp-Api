@@ -12,11 +12,34 @@ public class ProductInfoRepository : GenericRepository<ProductInfo>, IProductInf
     {
     }
 
-    public async Task<List<ProductInfo>> SearchProductInfoDtosAsync(string productName)
+    public async Task<List<ProductInfoDto>> SearchProductInfoDtosAsync(string productName)
     {
-        var query = _productDbContext.ProductInfos.AsQueryable();
-        query = query.Where(s => s.Name.Contains(productName));
-        return await query.AsNoTracking().ToListAsync();
+        return await _productDbContext.ProductInfos
+            .Where(p => p.Name.ToLower().Contains(productName.ToLower()))
+            .Select(p => new ProductInfoDto
+            {
+                Id = p.Id,
+                Name = p.Name,
+                Price = p.Price,
+                Description = p.Description,
+                Quantity = p.Quantity,
+                CategoryId = p.CategoryId,
+                CpuType = p.CpuType,
+                RamType = p.RamType,
+                RomType = p.RomType,
+                ScreenSize = p.ScreenSize,
+                BateryCapacity = p.BateryCapacity,
+                DetailsType = p.DetailsType,
+                ConnectType = p.ConnectType,
+                ProductImages = p.ProductImages
+                    .OrderBy(img => img.DisplayOrder)
+                    .Select(img => new ProductImageCreateDto
+                    {
+                        ImageUrl = img.ImageUrl
+                    }).ToList()
+            })
+            .AsNoTracking()
+            .ToListAsync();
     }
 
     public async Task<List<ProductInfo>> GetPopularProducts()

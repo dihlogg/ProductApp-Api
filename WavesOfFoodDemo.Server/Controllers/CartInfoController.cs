@@ -153,5 +153,22 @@ namespace WavesOfFoodDemo.Server.Controllers
                 return BadRequest(ex.Message);
             }
         }
+        [HttpGet("GetTransactionById/{id}")]
+        public async Task<IActionResult> GetTransactionById(Guid id)
+        {
+            try
+            {
+                var data = await _cartInfoService.GetTransactionByIdAsync(id);
+                if (data == null)
+                {
+                    return NotFound();
+                }
+                return Ok(data);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
     }
 }
