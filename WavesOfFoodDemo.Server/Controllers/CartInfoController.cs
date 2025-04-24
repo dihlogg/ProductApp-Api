@@ -67,6 +67,19 @@ namespace WavesOfFoodDemo.Server.Controllers
             }
         }
 
+        [HttpGet("SearchTransactionsByUserName")]
+        public async Task<IActionResult> SearchTransactionsByUserName(string userName)
+        {
+            try
+            {
+                var data = await _cartInfoService.SearchTransactionsByUserNameAsync(userName);
+                return Ok(data);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
 
 
         [HttpPost("PostCartInfo")]

@@ -13,5 +13,6 @@ public interface ICartInfoService
     Task<bool?> PostCartDetailInfo(CartDetailInfoDto cartInfoCreateDto);
     Task<bool?> UpdateStatusCartInfo(UpdateStatusCartDetailDto updateStatusCart);
     Task<CartHistoryDto?> GetTransactionByIdAsync(Guid id);
+    Task<List<CartHistoryDto>> SearchTransactionsByUserNameAsync(string userName);
 }
 

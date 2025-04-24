@@ -15,7 +15,7 @@ public class ProductInfoRepository : GenericRepository<ProductInfo>, IProductInf
     public async Task<List<ProductInfoDto>> SearchProductInfoDtosAsync(string productName)
     {
         return await _productDbContext.ProductInfos
-            .Where(p => p.Name.ToLower().Contains(productName.ToLower()))
+            .Where(p => EF.Functions.ILike(p.Name, $"%{productName}%"))
             .Select(p => new ProductInfoDto
             {
                 Id = p.Id,

@@ -2,8 +2,7 @@
 {
     public class ChatRequestDto
     {
-        public string Message { get; set; }
-        public string ConversationId { get; set; }
-        public string ContactId { get; set; }
+        public string message { get; set; }
+        public string userId { get; set; }
     }
 }

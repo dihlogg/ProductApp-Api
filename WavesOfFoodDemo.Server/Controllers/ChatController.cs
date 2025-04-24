@@ -16,11 +16,17 @@ namespace WavesOfFoodDemo.Server.Controllers
             _httpClient = httpClientFactory.CreateClient();
         }
 
-        [HttpPost("ChatBot")]
-        public async Task<IActionResult> Post([FromBody] ChatRequestDto request)
+        [HttpPost("SendMessage")]
+        public async Task<IActionResult> SendMessage([FromBody] ChatRequestDto request)
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
+
+            var payload = new
+            {
+                message = request.message,
+                userId = request.userId,
+            };
 
             var n8nUrl = "http://localhost:5678/webhook/chatbot";
 
