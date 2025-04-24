@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using WavesOfFoodDemo.Server.Dtos;
+using WavesOfFoodDemo.Server.Dtos.ChatBot;
 using WavesOfFoodDemo.Server.Entities;
 
 namespace WavesOfFoodDemo.Server
@@ -55,6 +56,11 @@ namespace WavesOfFoodDemo.Server
             CreateMap<ProductImageCreateDto, ProductImage>()
                 .ForMember(dest => dest.DisplayOrder, opt => opt.MapFrom(src => OrderGenerator.GetNextOrder()))
                 .ReverseMap()
+                .ForAllMembers(opt => opt.Condition((src, dst, srcMember) => srcMember != null));
+
+            CreateMap<Conversations, ChatRequestDto>().ReverseMap()
+                .ForAllMembers(opt => opt.Condition((src, dst, srcMember) => srcMember != null));
+            CreateMap<ChatRequestDto, Conversations>().ReverseMap()
                 .ForAllMembers(opt => opt.Condition((src, dst, srcMember) => srcMember != null));
         }
     }

@@ -3,6 +3,6 @@
     public class ChatRequestDto
     {
         public string message { get; set; }
-        public string userId { get; set; }
+        public Guid userId { get; set; }
     }
 }

@@ -26,5 +26,7 @@ public static class ApplicationServicesExtensions
         services.AddTransient<IMLService, MLService>();
         services.AddTransient<IProductInfoHistoryRepository, ProductInfoHistoryRepository>();
         services.AddTransient<IProductInfoHistoryService, ProductInfoHistoryService>();
+        services.AddTransient<IConversationRepository, ConversationRepository>();
+        services.AddTransient<IConversationService, ConversationService>();
     }
 }
