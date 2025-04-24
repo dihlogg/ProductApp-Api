@@ -191,5 +191,19 @@ namespace WavesOfFoodDemo.Server.Services
                 throw;
             }
         }
+
+        public async Task<List<CartHistoryDto>> SearchTransactionsByUserNameAsync(string userName)
+        {
+            try
+            {
+                var data = await _cartInfoRepository.SearchTransactionsByUserNameAsync(userName);
+                return _mapper.Map<List<CartHistoryDto>>(data);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex.Message);
+                throw;
+            }
+        }
     }
 }

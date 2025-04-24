@@ -15,6 +15,7 @@ public class CartInfoRepository : GenericRepository<CartInfo>, ICartInfoReposito
     {
         var query = _productDbContext.CartInfos
        .AsNoTracking()
+       .Include(ci => ci.UserInfos)
        .AsQueryable();
 
         if (userId != null)
@@ -46,7 +47,8 @@ public class CartInfoRepository : GenericRepository<CartInfo>, ICartInfoReposito
                 ProductName = cd.ProductInfo.Name,
                 Quantity = cd.Quantity,
                 Price = cd.ProductInfo.Price,
-            })
+            }),
+            UserName = item.UserInfos.UserName,
         });
 
         return await result.ToListAsync();
@@ -82,8 +84,40 @@ public class CartInfoRepository : GenericRepository<CartInfo>, ICartInfoReposito
                     ProductName = cd.ProductInfo.Name,
                     Quantity = cd.Quantity,
                     Price = cd.ProductInfo.Price,
-                })
+                }),
+                UserName = c.UserInfos.UserName
             })
             .FirstOrDefaultAsync();
+    }
+
+    public async Task<List<CartHistoryDto>> SearchTransactionsByUserNameAsync(string userName)
+    {
+        return await _productDbContext.CartInfos
+            .Include(ci => ci.UserInfos)
+            //.Where(p => p.UserInfos.UserName.Contains(userName))
+            .Where(p => EF.Functions.ILike(p.UserInfos.UserName, $"%{userName}%")) // case-insensitive
+            .Select(c => new CartHistoryDto
+            {
+                Id = c.Id,
+                Status = c.Status,
+                DateOrder = c.DateOrder.Value.AddHours(7).ToString("dd/MM/yyyy HH:mm"),
+                TotalPrice = c.CartDetails.Sum(s => s.Quantity * s.ProductInfo.Price),
+                CartDetails = c.CartDetails.Select(cd => new CartdetailHistoryDto()
+                {
+                    ProductImages = cd.ProductInfo.ProductImages
+                        .OrderBy(s => s.DisplayOrder)
+                        .Select(img => new ProductImageCreateDto
+                        {
+                            ImageUrl = img.ImageUrl
+                        })
+                        .ToList(),
+                    ProductName = cd.ProductInfo.Name,
+                    Quantity = cd.Quantity,
+                    Price = cd.ProductInfo.Price,
+                }),
+                UserName = c.UserInfos.UserName,
+            })
+            .AsNoTracking()
+            .ToListAsync();
     }
 }
