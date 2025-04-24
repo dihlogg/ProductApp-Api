@@ -1,7 +1,6 @@
-﻿using System.Text;
-using Microsoft.AspNetCore.Mvc;
-using Newtonsoft.Json;
+﻿using Microsoft.AspNetCore.Mvc;
 using WavesOfFoodDemo.Server.Dtos.ChatBot;
+using WavesOfFoodDemo.Server.Services;
 
 namespace WavesOfFoodDemo.Server.Controllers
 {
@@ -10,38 +9,38 @@ namespace WavesOfFoodDemo.Server.Controllers
     public class ChatController : ControllerBase
     {
         private readonly HttpClient _httpClient;
-
-        public ChatController(IHttpClientFactory httpClientFactory)
+        private readonly IConversationService _conversationService;
+        public ChatController(IHttpClientFactory httpClientFactory, IConversationService conversationService)
         {
             _httpClient = httpClientFactory.CreateClient();
+            _conversationService = conversationService;
         }
 
-        [HttpPost("SendMessage")]
-        public async Task<IActionResult> SendMessage([FromBody] ChatRequestDto request)
+        [HttpPost("PostMessage")]
+        public async Task<IActionResult> PostMessage([FromBody] ChatRequestDto request)
         {
-            if (!ModelState.IsValid)
-                return BadRequest(ModelState);
-
-            var payload = new
-            {
-                message = request.message,
-                userId = request.userId,
-            };
-
-            var n8nUrl = "http://localhost:5678/webhook/chatbot";
-
-            var content = new StringContent(JsonConvert.SerializeObject(request), Encoding.UTF8, "application/json");
-
             try
             {
-                var response = await _httpClient.PostAsync(n8nUrl, content);
-                var responseBody = await response.Content.ReadAsStringAsync();
-
-                return Content(responseBody, "application/json");
+                var responseBody = await _conversationService.SendMessageAsync(request);
+                return Content(responseBody, "text/plain");
             }
             catch (Exception ex)
             {
-                return StatusCode(500, new { error = "Failed to connect to n8n", details = ex.Message });
+                return StatusCode(500, $"Internal server error: {ex.Message}");
+            }
+        }
+
+        [HttpGet("GetMessages/{userId}")]
+        public async Task<IActionResult> GetMessages(Guid userId)
+        {
+            try
+            {
+                var messages = await _conversationService.GetMessagesByUserIdAsync(userId);
+                return Ok(messages);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { error = "Failed to retrieve messages", details = ex.Message });
             }
         }
     }

@@ -13,4 +13,5 @@ public class UserInfo : BaseEntities
     public string? UserPhone { get; set; }
 
     public ICollection<CartInfo> CartInfos { get; set; }
+    public ICollection<Conversations> Conversations { get; set; }
 }

@@ -31,12 +31,23 @@ public class ProductDbContext : DbContext
     public virtual DbSet<Category> Categories { get; set; }
     public virtual DbSet<ProductImage> ProductImages { get; set; }
     public virtual DbSet<ProductInfoHistory> ProductInfoHistorys { get; set; }
+    public virtual DbSet<Conversations> Conversations { get; set; }
 
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<Category>().ToTable("Categories").HasKey(x => x.Id);
         modelBuilder.Entity<ProductImage>().ToTable("ProductImages").HasKey(x => x.Id);
+        //conversations
+        modelBuilder.Entity<Conversations>().ToTable("Conversations").HasKey(x => x.Id);
+        modelBuilder.Entity<Conversations>()
+        .Property(c => c.ProductsJson)
+        .HasColumnType("jsonb");
+
+        modelBuilder.Entity<Conversations>()
+            .HasOne<UserInfo>(s => s.UserInfos)
+            .WithMany(g => g.Conversations)
+            .HasForeignKey(s => s.UserId);
 
         modelBuilder.Entity<ProductInfo>().ToTable("ProductInfos").HasKey(x => x.Id);
         modelBuilder.Entity<ProductInfo>()
