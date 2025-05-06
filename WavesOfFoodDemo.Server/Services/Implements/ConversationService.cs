@@ -48,25 +48,25 @@ namespace WavesOfFoodDemo.Server.Services.Implements
                 message = request.message,
                 userId = request.userId
             };
-            var n8nUrl = "http://192.168.1.15:5678/webhook/chatbot";
+            var n8nUrl = "http://127.0.0.1:5678/webhook/chatbot";
             var content = new StringContent(JsonConvert.SerializeObject(payload), Encoding.UTF8, "application/json");
 
             var httpClient = _httpClientFactory.CreateClient();
             var response = await httpClient.PostAsync(n8nUrl, content);
             response.EnsureSuccessStatusCode();
 
-            // Parse response fr n8n
+            // parse response fr n8n
             var responseJson = await response.Content.ReadAsStringAsync();
             string responseBody;
             try
             {
                 var responseArray = JArray.Parse(responseJson);
-                responseBody = responseArray[0]?["output"]?.ToString() ?? "Không có phản hồi từ bot.";
+                responseBody = responseArray[0]?["output"]?.ToString() ?? "No response from bot.";
             }
             catch (JsonException ex)
             {
                 Console.WriteLine($"Error parsing n8n response: {ex.Message}");
-                responseBody = responseJson; // Fallback: sử dụng response gốc nếu không parse được
+                responseBody = responseJson; // using response json
             }
 
             // save bot response
@@ -74,7 +74,7 @@ namespace WavesOfFoodDemo.Server.Services.Implements
             {
                 Id = Guid.NewGuid(),
                 UserId = userId,
-                Message = responseBody, // Lưu chuỗi HTML
+                Message = responseJson,
                 Sender = "bot",
                 Timestamp = DateTime.UtcNow,
                 CreateDate = DateTime.UtcNow
