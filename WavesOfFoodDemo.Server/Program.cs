@@ -64,6 +64,7 @@ app.UseCors("AllowOrigin");
 
 // config signalR
 app.MapHub<CartHub>("/cartHub");
+app.MapHub<ChatHub>("/chatHub");
 
 app.UseRouting();
 // Configure the HTTP request pipeline.
